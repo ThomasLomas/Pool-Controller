@@ -1,0 +1,8 @@
+<mat-card class="pool-item pool-item-{{ item.type }}">
+  <mat-card-title>{{ item.name }}</mat-card-title>
+  <mat-card-content>
+    <div *ngFor="let output of item.outputs">
+      <mat-slide-toggle [checked]="output.state == 'on'" (change)="onOutputToggle(output, $event)">{{ output.name }}</mat-slide-toggle>
+    </div>
+  </mat-card-content>
+</mat-card>
