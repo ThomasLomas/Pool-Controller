@@ -1,0 +1,22 @@
+{
+  "name": "pool-controller",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "cd client && ng test && cd ../server && jest",
+    "start": "cd client && ng build && cd ../server && nest start",
+    "start:client:dev": "cd client && ng build --watch",
+    "start:server:dev": "cd server && nest start --watch"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ThomasLomas/Pool-Controller.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ThomasLomas/Pool-Controller/issues"
+  },
+  "homepage": "https://github.com/ThomasLomas/Pool-Controller#readme"
+}
