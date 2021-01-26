@@ -1,0 +1,112 @@
+{
+    "temps": [],
+    "items": [
+        {
+            "name": "Salt",
+            "id": "item_1",
+            "type": "salt",
+            "active": false,
+            "outputType": "single",
+            "outputs": []
+        },
+        {
+            "name": "Pump",
+            "active": true,
+            "id": "item_2",
+            "type": "pump",
+            "outputType": "single",
+            "outputs": [
+                {
+                    "name": "Pump 1 (Pool Mode)",
+                    "id": "output_1",
+                    "state": "off",
+                    "states": [
+                        "off",
+                        "on"
+                    ]
+                },
+                {
+                    "name": "Pump 2 (Spa Mode Heating)",
+                    "id": "output_2",
+                    "state": "off",
+                    "states": [
+                        "off",
+                        "on"
+                    ]
+                },
+                {
+                    "name": "Pump 3 (Spa Mode Hot)",
+                    "id": "output_3",
+                    "state": "off",
+                    "states": [
+                        "off",
+                        "on"
+                    ]
+                },
+                {
+                    "name": "Pump 4 (Not Used)",
+                    "id": "output_4",
+                    "state": "on",
+                    "states": [
+                        "off",
+                        "on"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "Actuators",
+            "type": "actuator",
+            "id": "item_3",
+            "active": true,
+            "outputType": "multi",
+            "outputs": [
+                {
+                    "name": "Suction",
+                    "id": "output_1",
+                    "state": "on",
+                    "states": [
+                        "off",
+                        "on"
+                    ]
+                },
+                {
+                    "name": "Pressure",
+                    "id": "output_2",
+                    "state": "on",
+                    "states": [
+                        "off",
+                        "on"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "Heater",
+            "type": "heater",
+            "id": "item_4",
+            "active": true,
+            "outputType": "single",
+            "outputs": [
+                {
+                    "name": "Pool",
+                    "state": "off",
+                    "id": "output_1",
+                    "states": [
+                        "off",
+                        "on"
+                    ]
+                },
+                {
+                    "name": "Spa",
+                    "state": "on",
+                    "id": "output_2",
+                    "states": [
+                        "off",
+                        "on"
+                    ]
+                }
+            ]
+        }
+    ]
+}

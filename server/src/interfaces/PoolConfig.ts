@@ -5,6 +5,7 @@ export enum ItemState {
 
 export interface ItemOutput {
   name: string;
+  id: string;
   state: ItemState;
   states: ItemState[];
 }
@@ -22,6 +23,7 @@ export enum ItemType {
 }
 
 export interface PoolItem {
+  id: string;
   name: string;
   type: ItemType;
   active: boolean;
@@ -29,6 +31,13 @@ export interface PoolItem {
   outputType: ItemOutputType;
 }
 
+export interface PoolTemp {
+  id: string;
+  description: string;
+  value: number;
+}
+
 export interface PoolConfig {
+  temps: PoolTemp[];
   items: PoolItem[];
 }

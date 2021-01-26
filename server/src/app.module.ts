@@ -5,15 +5,22 @@ import { ConfigController } from './config/config.controller';
 import { LoggerMiddleware } from './middleware/logger.middleware';
 import { LoggerService } from './logger/logger.service';
 import { ItemController } from './item/item.controller';
+import { ConfigService } from './config/config.service';
+import { EventEmitterModule } from '@nestjs/event-emitter';
+import { PumpService } from './pump/pump.service';
+import { ItemService } from './item/item.service';
 
 @Module({
   imports: [
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', '..', 'client', 'dist', 'client')
     }),
+    EventEmitterModule.forRoot({
+      wildcard: true,
+    }),
   ],
   controllers: [ConfigController, ItemController],
-  providers: [LoggerService],
+  providers: [LoggerService, ConfigService, PumpService, ItemService],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
