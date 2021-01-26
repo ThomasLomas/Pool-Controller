@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "cd client && ng test && cd ../server && jest",
-    "start": "cd client && ng build && cd ../server && nest start",
+    "start": "cd client && npm run build && cd ../server && npm run start",
     "start:client:dev": "cd client && ng build --watch",
     "start:server:dev": "cd server && nest start --watch"
   },
