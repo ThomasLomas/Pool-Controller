@@ -21,7 +21,7 @@ export class ItemService {
     const newItem: PoolItem = payload.newItem;
     const oldItem: PoolItem = payload.oldItem;
 
-    this.loggerService.info(
+    this.loggerService.log(
       `Got ${payload.type} update for ${newItem.id} ${newItem.name}`,
     );
 
@@ -47,9 +47,9 @@ export class ItemService {
       );
     });
 
-    this.loggerService.info(`Found ${deletedOutputs.length} deleted output(s)`);
-    this.loggerService.info(`Found ${newOutputs.length} new output(s)`);
-    this.loggerService.info(
+    this.loggerService.log(`Found ${deletedOutputs.length} deleted output(s)`);
+    this.loggerService.log(`Found ${newOutputs.length} new output(s)`);
+    this.loggerService.log(
       `Found ${changedOutputsStates.length} changed output states`,
     );
 

@@ -9,6 +9,7 @@ import { ConfigService } from './config/config.service';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { PumpService } from './pump/pump.service';
 import { ItemService } from './item/item.service';
+import { SerialPortService } from './serial-port/serial-port.service';
 
 @Module({
   imports: [
@@ -20,7 +21,13 @@ import { ItemService } from './item/item.service';
     }),
   ],
   controllers: [ConfigController, ItemController],
-  providers: [LoggerService, ConfigService, PumpService, ItemService],
+  providers: [
+    LoggerService,
+    ConfigService,
+    PumpService,
+    ItemService,
+    SerialPortService,
+  ],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {

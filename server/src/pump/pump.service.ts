@@ -11,7 +11,7 @@ export class PumpService {
   @OnEvent('output.deleted.pump')
   handleOutputDeleted(payload: OutputDeletedEvent): void {
     if (payload.output.state === ItemState.OFF) {
-      this.loggerService.info(
+      this.loggerService.log(
         `Output ${payload.output.name} was already turned off`,
       );
       return;
@@ -21,7 +21,7 @@ export class PumpService {
 
   @OnEvent('output.updated.pump')
   handleOutputUpdated(payload: OutputUpdatedEvent): void {
-    this.loggerService.info(
+    this.loggerService.log(
       `Output ${payload.newOutput.name} now ${payload.newOutput.state} (was ${payload.oldOutput.state})`,
     );
     // Handle output being updated

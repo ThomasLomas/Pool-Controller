@@ -8,15 +8,17 @@ import { join } from 'path';
 export class ConfigService {
   PATH = join(__dirname, '..', '..', 'state.json');
 
-  constructor(private loggerService: LoggerService) {}
+  constructor(private loggerService: LoggerService) {
+    this.loggerService.setContext('ConfigService');
+  }
 
   getConfig(): PoolConfig {
     return require(this.PATH);
   }
 
   updateConfig(poolConfig: PoolConfig): PoolConfig {
-    this.loggerService.info('Writing new configuration');
-    const encodedConfig: string = JSON.stringify(poolConfig, null, 4);
+    this.loggerService.log('Writing new configuration');
+    const encodedConfig: string = JSON.stringify(poolConfig, null, 2);
     fs.writeFileSync(this.PATH, encodedConfig);
 
     return poolConfig;
