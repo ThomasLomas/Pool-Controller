@@ -4,6 +4,7 @@ export enum PentairAction {
   REMOTE_CONTROL = 4,
   SET_MODE = 5,
   CHANGE_RUNNING_STATE = 6,
+  GET_STATUS = 7,
 }
 
 export enum PentairData {
