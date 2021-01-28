@@ -1,15 +1,22 @@
-import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
+import {
+  Injectable,
+  OnApplicationBootstrap,
+  OnModuleDestroy,
+} from '@nestjs/common';
 import { ConfigService } from 'src/config/config.service';
 import { LoggerService } from 'src/logger/logger.service';
 import * as SerialPort from 'serialport';
 import * as MockBinding from '@serialport/binding-mock';
-import { OnEvent } from '@nestjs/event-emitter';
+import { Observable } from 'rxjs';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 
 @Injectable()
-export class SerialPortService implements OnApplicationBootstrap {
+export class SerialPortService
+  implements OnApplicationBootstrap, OnModuleDestroy {
   constructor(
     private loggerService: LoggerService,
     private configService: ConfigService,
+    private eventEmitter: EventEmitter2,
   ) {
     this.loggerService.setContext('SerialPortService');
   }
@@ -53,9 +60,32 @@ export class SerialPortService implements OnApplicationBootstrap {
     });
   }
 
-  @OnEvent('serialbus.write')
-  writeData(data) {
+  writeData(data: Buffer | number[]): Observable<number> {
     this.loggerService.debug('Write data event triggered');
+
+    return new Observable<number>((subscriber) => {
+      this.serialPort.write(data, (err, bytesWritten) => {
+        if (err) {
+          subscriber.error(err);
+        } else {
+          subscriber.next(bytesWritten);
+          subscriber.complete();
+        }
+      });
+    });
+  }
+
+  close(): Observable<boolean> {
+    return new Observable<boolean>((subscriber) => {
+      this.serialPort.close((err) => {
+        if (err) {
+          subscriber.error(err);
+        } else {
+          subscriber.next(true);
+          subscriber.complete();
+        }
+      });
+    });
   }
 
   onOpen() {
@@ -65,5 +95,11 @@ export class SerialPortService implements OnApplicationBootstrap {
 
   onData(data) {
     this.loggerService.debug('Received data', JSON.stringify(data));
+    this.eventEmitter.emit('serialport.data', data);
+  }
+
+  async onModuleDestroy() {
+    this.loggerService.log('Module is destroying');
+    await this.close().toPromise();
   }
 }

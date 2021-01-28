@@ -32,7 +32,7 @@
         {
           "name": "Pump 1 (Pool Mode)",
           "id": "output_1",
-          "state": "on",
+          "state": "off",
           "states": [
             "off",
             "on"

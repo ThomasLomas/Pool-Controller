@@ -10,6 +10,7 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
 import { PumpService } from './pump/pump.service';
 import { ItemService } from './item/item.service';
 import { SerialPortService } from './serial-port/serial-port.service';
+import { PentairService } from './pump/pentair.service';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { SerialPortService } from './serial-port/serial-port.service';
     PumpService,
     ItemService,
     SerialPortService,
+    PentairService,
   ],
 })
 export class AppModule implements NestModule {
