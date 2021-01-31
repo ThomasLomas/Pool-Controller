@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "build": "cd client && npm run build && cd ../server && npm run build",
     "test": "cd client && ng test && cd ../server && jest",
     "start": "cd client && npm run build && cd ../server && npm run start",
     "start:client:dev": "cd client && ng build --watch",
