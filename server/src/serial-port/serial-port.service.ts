@@ -100,6 +100,9 @@ export class SerialPortService
 
               const subscription: Subscription = this.inboundQueue.subscribe(
                 (inboundMessage) => {
+                  this.loggerService.log(
+                    'Received message on the inbound queue',
+                  );
                   message.response$.next(inboundMessage);
                   message.response$.complete();
                   subscription.unsubscribe();
@@ -160,7 +163,7 @@ export class SerialPortService
   }
 
   private onData(data: Buffer) {
-    this.loggerService.debug(`Received data: ${data.toString('ascii')}`);
+    this.loggerService.debug(`Received data: ${JSON.stringify(data)}`);
     // this.inboundQueue.next(new Message(data, false, MessageDirection.INBOUND));
   }
 
