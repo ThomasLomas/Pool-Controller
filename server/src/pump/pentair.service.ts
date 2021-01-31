@@ -12,7 +12,7 @@ export class PentairService {
   private constructMessage(
     action: number,
     data: number[],
-    requiresResponse = false,
+    requiresResponse = true,
   ): Message {
     /**
      * [ [PACKET_HEADER], PAYLOAD_HEADER, VERSION, DESTINATION, SOURCE, ACTION, DATA_LENGTH, [DATA], [CHECKSUM] ]
@@ -48,7 +48,7 @@ export class PentairService {
   remoteControl(enable = true): Message {
     return this.constructMessage(PentairAction.REMOTE_CONTROL, [
       enable ? PentairData.REMOTE_CONTROL_ON : PentairData.REMOTE_CONTROL_OFF,
-    ], true);
+    ]);
   }
 
   togglePower(on = true): Message {
@@ -69,9 +69,7 @@ export class PentairService {
 
   parseStatus(response: Message) {
     // Example:
-    // [255, 0, 255, 165, 0, 33, 96,
-    //   7, 15, 10, 0, 0, 2, 62, 7, 208, 0, 0, 0, 0, 2, 49, 15, 11,
-    // 2, 170]
+    //  [255,0,255,165,0,33,96,7,15,4,0,255,0,0,0,0,0,0,0,0,0,0,18,48,2,129]
 
     // Remove packet header and payload header
     response.data.splice(0, 7);
@@ -93,6 +91,12 @@ export class PentairService {
       rpmLow,
       timerHour,
       timerMin,
+
+      dunno,
+      dunno2,
+      dunno3,
+      dunno4,
+
       clockHour,
       clockMin,
     ] = response.data;
