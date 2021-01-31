@@ -163,8 +163,12 @@ export class SerialPortService
   }
 
   private onData(data: Buffer) {
-    this.loggerService.debug(`Received data: ${JSON.stringify(data)}`);
-    // this.inboundQueue.next(new Message(data, false, MessageDirection.INBOUND));
+    const parsedData = data.toJSON().data;
+
+    this.loggerService.debug(`Received data: ${JSON.stringify(parsedData)}`);
+    this.inboundQueue.next(
+      new Message(parsedData, false, MessageDirection.INBOUND),
+    );
   }
 
   async onModuleDestroy() {
