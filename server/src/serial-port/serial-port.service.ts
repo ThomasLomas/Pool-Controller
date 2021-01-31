@@ -7,8 +7,9 @@ import { ConfigService } from 'src/config/config.service';
 import { LoggerService } from 'src/logger/logger.service';
 import * as SerialPort from 'serialport';
 import * as MockBinding from '@serialport/binding-mock';
-import { Observable } from 'rxjs';
-import { EventEmitter2 } from '@nestjs/event-emitter';
+import { Observable, of, Subject, Subscription } from 'rxjs';
+import { catchError, mergeMap } from 'rxjs/operators';
+import { Message, MessageDirection } from './message';
 
 @Injectable()
 export class SerialPortService
@@ -16,18 +17,21 @@ export class SerialPortService
   constructor(
     private loggerService: LoggerService,
     private configService: ConfigService,
-    private eventEmitter: EventEmitter2,
   ) {
     this.loggerService.setContext('SerialPortService');
   }
 
-  serialPort: SerialPort;
-  isOpen = false;
+  private outboundQueue: Subject<Message> = new Subject<Message>();
+  private inboundQueue: Subject<Message> = new Subject<Message>();
+
+  private serialPort: SerialPort;
+  private isOpen = false;
 
   onApplicationBootstrap() {
     const config = this.configService.getConfig();
     this.loggerService.log('Setting up serial port');
 
+    // Set up the connection
     if (config.serialPort.mock) {
       this.loggerService.log('Running in mock mode');
 
@@ -47,9 +51,11 @@ export class SerialPortService
       );
     }
 
+    // Basic events
     this.serialPort.on('open', () => this.onOpen());
     this.serialPort.on('data', (data) => this.onData(data));
 
+    // Open up the connection
     this.serialPort.open((err) => {
       if (err) {
         this.loggerService.error('Error opening serial port', err.message);
@@ -60,22 +66,71 @@ export class SerialPortService
     });
   }
 
-  writeData(data: Buffer | number[]): Observable<number> {
-    this.loggerService.debug('Write data event triggered');
+  /**
+   * Write a new message - behind the scenes this is buffered due to half duplex connection
+   */
+  write(message: Message): Observable<Message> {
+    this.loggerService.debug(
+      `Write data event triggered: ${JSON.stringify(
+        message.data,
+      )} - Response required: ${message.requiresResponse}`,
+    );
+    this.outboundQueue.next(message);
 
-    return new Observable<number>((subscriber) => {
-      this.serialPort.write(data, (err, bytesWritten) => {
-        if (err) {
-          subscriber.error(err);
-        } else {
-          subscriber.next(bytesWritten);
-          subscriber.complete();
-        }
-      });
-    });
+    return message.response$.asObservable();
   }
 
-  close(): Observable<boolean> {
+  /**
+   * Processes the queue sequentially
+   */
+  private processQueue(): void {
+    this.outboundQueue.pipe(
+      mergeMap(
+        (message: Message) => {
+          // If we require a response then subscribe to the inbound messages
+          if (message.requiresResponse) {
+            const subscription: Subscription = this.inboundQueue.subscribe(
+              (inboundMessage) => {
+                message.response$.next(inboundMessage);
+                message.response$.complete();
+                subscription.unsubscribe();
+              },
+            );
+          }
+
+          this.serialPort.write(message.data, (err) => {
+            this.loggerService.debug(
+              `Message sent: ${JSON.stringify(message.data)}`,
+            );
+
+            if (err) {
+              this.loggerService.error(
+                `Serial port completed with error: ${err.message}`,
+                err.stack,
+              );
+              message.response$.error(err);
+              message.response$.complete();
+            } else if (!message.requiresResponse) {
+              message.response$.next(
+                new Message([], false, MessageDirection.INBOUND),
+              );
+              message.response$.complete();
+            }
+          });
+
+          // Only move on when we have a response
+          return message.response$.pipe(catchError(() => of({})));
+        },
+        null,
+        1,
+      ),
+    );
+  }
+
+  /**
+   * Close the connection
+   */
+  private close(): Observable<boolean> {
     return new Observable<boolean>((subscriber) => {
       this.serialPort.close((err) => {
         if (err) {
@@ -88,14 +143,15 @@ export class SerialPortService
     });
   }
 
-  onOpen() {
+  private onOpen() {
     this.loggerService.log('Serial port opened');
     this.isOpen = true;
+    this.processQueue();
   }
 
-  onData(data) {
+  private onData(data) {
     this.loggerService.debug('Received data', JSON.stringify(data));
-    this.eventEmitter.emit('serialport.data', data);
+    this.inboundQueue.next(new Message(data, false, MessageDirection.INBOUND));
   }
 
   async onModuleDestroy() {

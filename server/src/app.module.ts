@@ -11,6 +11,8 @@ import { PumpService } from './pump/pump.service';
 import { ItemService } from './item/item.service';
 import { SerialPortService } from './serial-port/serial-port.service';
 import { PentairService } from './pump/pentair.service';
+import { GpioService } from './gpio/gpio.service';
+import { ActuatorService } from './actuator/actuator.service';
 
 @Module({
   imports: [
@@ -29,6 +31,8 @@ import { PentairService } from './pump/pentair.service';
     ItemService,
     SerialPortService,
     PentairService,
+    GpioService,
+    ActuatorService,
   ],
 })
 export class AppModule implements NestModule {

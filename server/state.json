@@ -12,6 +12,10 @@
       "lock": false
     }
   },
+  "gpio": {
+    "mock": true,
+    "naming": "BCM"
+  },
   "temps": [],
   "items": [
     {
@@ -77,6 +81,7 @@
         {
           "name": "Suction",
           "id": "output_1",
+          "pin": 3,
           "state": "on",
           "states": [
             "off",
@@ -86,6 +91,7 @@
         {
           "name": "Pressure",
           "id": "output_2",
+          "pin": 5,
           "state": "on",
           "states": [
             "off",
@@ -104,6 +110,7 @@
         {
           "name": "Pool",
           "state": "off",
+          "pin": 7,
           "id": "output_1",
           "states": [
             "off",
@@ -112,6 +119,7 @@
         },
         {
           "name": "Spa",
+          "pin": 11,
           "state": "on",
           "id": "output_2",
           "states": [

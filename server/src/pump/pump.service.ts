@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
+import { flatMap } from 'rxjs/operators';
 import { ItemState } from 'src/interfaces/PoolConfig';
 import { OutputDeletedEvent, OutputUpdatedEvent } from 'src/item/item.event';
 import { LoggerService } from 'src/logger/logger.service';
@@ -23,7 +24,7 @@ export class PumpService {
       return;
     }
 
-    // Handle output being deleted
+    // @todo Handle output being deleted
   }
 
   @OnEvent('output.updated.pump')
@@ -32,23 +33,17 @@ export class PumpService {
       `Output ${payload.newOutput.name} now ${payload.newOutput.state} (was ${payload.oldOutput.state})`,
     );
 
-    this.pentairService.remoteControl(false);
-    // Handle output being updated
-  }
+    this.serialPortService
+      .write(this.pentairService.remoteControl(true))
+      .pipe(
+        flatMap(() =>
+          this.serialPortService.write(this.pentairService.getStatus()),
+        ),
+      )
+      .subscribe((message) => {
+        console.log('Status message back: ', message);
+      });
 
-  enableRemoteControl() {
-    // eslint-disable-next-line prettier/prettier
-    return this.serialPortService.writeData([255, 0, 255, 165, 0, 96, 33, 4, 1, 255, 2, 42]);
-  }
-
-  sendPumpData() {
-    this.serialPortService.writeData([]).subscribe((resp) => {
-      console.log(resp);
-    });
-  }
-
-  @OnEvent('serialport.data')
-  handlePumpData(data: any) {
-    console.log(data);
+    // @todo Handle output being updated
   }
 }

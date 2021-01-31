@@ -8,6 +8,7 @@ export interface ItemOutput {
   id: string;
   state: ItemState;
   states: ItemState[];
+  pin?: number;
 }
 
 export enum ItemOutputType {
@@ -71,7 +72,13 @@ export interface SerialPortSettings {
   lock: boolean;
 }
 
+export interface GpioConfig {
+  mock: boolean;
+  naming: 'BCM' | 'RPI';
+}
+
 export interface PoolConfig {
+  gpio: GpioConfig;
   serialPort: SerialPort;
   temps: PoolTemp[];
   items: PoolItem[];

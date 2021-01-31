@@ -28,9 +28,11 @@
     "@nestjs/platform-express": "^7.5.1",
     "@nestjs/serve-static": "^2.1.4",
     "@serialport/binding-mock": "^9.0.2",
+    "@types/rpi-gpio": "^2.1.1",
     "mongoose": "^5.11.13",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
+    "rpi-gpio": "^2.1.7",
     "rxjs": "^6.6.3",
     "serialport": "^9.0.6"
   },

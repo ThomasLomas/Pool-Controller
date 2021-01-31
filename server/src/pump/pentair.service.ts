@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { Injectable } from '@nestjs/common';
+import { Message, MessageDirection } from 'src/serial-port/message';
 import { PentairAction, PentairData } from './pentair.enum';
 
 // With help from:
@@ -8,21 +9,20 @@ import { PentairAction, PentairData } from './pentair.enum';
 
 @Injectable()
 export class PentairService {
-  getPacketHeader() {
-    return [255, 0, 255];
-  }
-
-  getPayloadHeader() {
-    return [165, 0, 96, 33];
-  }
-  constructMessage(action: number, data: number[]) {
+  private constructMessage(
+    action: number,
+    data: number[],
+    requiresResponse = false,
+  ): Message {
     /**
      * [ [PACKET_HEADER], PAYLOAD_HEADER, VERSION, DESTINATION, SOURCE, ACTION, DATA_LENGTH, [DATA], [CHECKSUM] ]
      */
+    const packetHeader = [255, 0, 255];
+    const payloadHeader = [165, 0, 96, 33];
 
     const actionAndData = [action, data.length].concat(data);
     const payloadAndActionAndData = []
-      .concat(this.getPayloadHeader())
+      .concat(payloadHeader)
       .concat(actionAndData);
 
     const checkSumTotal = payloadAndActionAndData.reduce((a, b) => a + b);
@@ -30,31 +30,37 @@ export class PentairService {
     // eslint-disable-next-line prettier/prettier
     const checkSumLittle = checkSumTotal - (checkSumBig * 256);
 
-    return this.getPacketHeader()
+    const constructedPayload = packetHeader
       .concat(payloadAndActionAndData)
       .concat([checkSumBig, checkSumLittle]);
+
+    return new Message(
+      constructedPayload,
+      requiresResponse,
+      MessageDirection.OUTBOUND,
+    );
   }
 
-  remoteControl(enable = true) {
+  remoteControl(enable = true): Message {
     return this.constructMessage(PentairAction.REMOTE_CONTROL, [
       enable ? PentairData.REMOTE_CONTROL_ON : PentairData.REMOTE_CONTROL_OFF,
     ]);
   }
 
-  togglePower(on = true) {
+  togglePower(on = true): Message {
     return this.constructMessage(PentairAction.CHANGE_RUNNING_STATE, [
       on ? PentairData.REMOTE_CONTROL_ON : PentairData.RUNNING_STATE_OFF,
     ]);
   }
 
-  setMode(mode = 1) {
+  setMode(mode = 1): Message {
     return this.constructMessage(PentairAction.SET_MODE, [
       PentairData[`PUMP_SPEED_${mode}`],
     ]);
   }
 
-  getStatus() {
-    return this.constructMessage(PentairAction.GET_STATUS, []);
+  getStatus(): Message {
+    return this.constructMessage(PentairAction.GET_STATUS, [], true);
   }
 
   parseStatus(response: number[]) {
