@@ -25,20 +25,24 @@ export class PentairService {
       .concat(payloadHeader)
       .concat(actionAndData);
 
-    const checkSumTotal = payloadAndActionAndData.reduce((a, b) => a + b);
-    const checkSumBig = Math.floor(checkSumTotal / 256);
-    // eslint-disable-next-line prettier/prettier
-    const checkSumLittle = checkSumTotal - (checkSumBig * 256);
-
     const constructedPayload = packetHeader
       .concat(payloadAndActionAndData)
-      .concat([checkSumBig, checkSumLittle]);
+      .concat(this.getChecksum(payloadAndActionAndData));
 
     return new Message(
       constructedPayload,
       requiresResponse,
       MessageDirection.OUTBOUND,
     );
+  }
+
+  getChecksum(data: number[]): number[] {
+    const checkSumTotal = data.reduce((a, b) => a + b);
+    const checkSumBig = Math.floor(checkSumTotal / 256);
+    // eslint-disable-next-line prettier/prettier
+    const checkSumLittle = checkSumTotal - (checkSumBig * 256);
+
+    return [checkSumBig, checkSumLittle];
   }
 
   remoteControl(enable = true): Message {

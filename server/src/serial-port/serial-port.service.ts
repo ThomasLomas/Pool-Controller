@@ -10,6 +10,7 @@ import * as MockBinding from '@serialport/binding-mock';
 import { Observable, of, Subject, Subscription } from 'rxjs';
 import { catchError, mergeMap } from 'rxjs/operators';
 import { Message, MessageDirection } from './message';
+import { PentairService } from 'src/pump/pentair.service';
 
 @Injectable()
 export class SerialPortService
@@ -17,12 +18,14 @@ export class SerialPortService
   constructor(
     private loggerService: LoggerService,
     private configService: ConfigService,
+    private pentairService: PentairService,
   ) {
     this.loggerService.setContext('SerialPortService');
   }
 
   private outboundQueue: Subject<Message> = new Subject<Message>();
   private inboundQueue: Subject<Message> = new Subject<Message>();
+  private inboundBytes: number[] = [];
 
   private serialPort: SerialPort;
   private isOpen = false;
@@ -164,11 +167,51 @@ export class SerialPortService
 
   private onData(data: Buffer) {
     const parsedData = data.toJSON().data;
+    this.inboundBytes = this.inboundBytes.concat(parsedData);
 
-    this.loggerService.debug(`Received data: ${JSON.stringify(parsedData)}`);
-    this.inboundQueue.next(
-      new Message(parsedData, false, MessageDirection.INBOUND),
+    this.loggerService.debug(
+      `Received data: ${JSON.stringify(
+        parsedData,
+      )}; Response so far: ${JSON.stringify(this.inboundBytes)}`,
     );
+
+    // Bigger than the first 3 (payload header), 1 data byte, and 2 checksum bytes
+    if (this.inboundBytes.length > 6) {
+      // Copy to a local version so we dont accidentally screw up the main one
+      const inboundBytes: number[] = JSON.parse(
+        JSON.stringify(this.inboundBytes),
+      );
+      // Remove first 3 (payload header)
+      inboundBytes.splice(0, 3);
+
+      // remove last 2 (checksum)
+      inboundBytes.splice(-2, 2);
+
+      const [bigChecksum, littleChecksum] = this.pentairService.getChecksum(
+        inboundBytes,
+      );
+
+      const bufferBigChecksum = this.inboundBytes[this.inboundBytes.length - 2];
+      // eslint-disable-next-line prettier/prettier
+      const bufferLittleChecksum = this.inboundBytes[this.inboundBytes.length - 1];
+
+      this.loggerService.debug(
+        `Calculated checksum: ${bigChecksum}/${bufferBigChecksum} ${littleChecksum}/${bufferLittleChecksum}`,
+      );
+
+      if (
+        bigChecksum === bufferBigChecksum &&
+        littleChecksum === bufferLittleChecksum
+      ) {
+        this.loggerService.debug(
+          `Completed full response: ${JSON.stringify(this.inboundBytes)}`,
+        );
+        this.inboundQueue.next(
+          new Message(this.inboundBytes, false, MessageDirection.INBOUND),
+        );
+        this.inboundBytes = [];
+      }
+    }
   }
 
   async onModuleDestroy() {
