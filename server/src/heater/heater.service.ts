@@ -1,8 +1,9 @@
-import { Injectable, LoggerService } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
 import { GpioService } from 'src/gpio/gpio.service';
 import { ItemState } from 'src/interfaces/PoolConfig';
 import { OutputDeletedEvent, OutputUpdatedEvent } from 'src/item/item.event';
+import { LoggerService } from 'src/logger/logger.service';
 
 @Injectable()
 export class HeaterService {
