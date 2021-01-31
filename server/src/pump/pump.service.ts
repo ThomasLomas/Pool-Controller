@@ -68,6 +68,12 @@ export class PumpService {
         this.serialPortService
           .write(this.pentairService.remoteControl(true))
           .pipe(
+            // Pressing stop twice kicks it back to any scheduled mode
+            map(() =>
+              this.serialPortService.write(
+                this.pentairService.togglePower(false),
+              ),
+            ),
             map(() =>
               this.serialPortService.write(
                 this.pentairService.togglePower(false),

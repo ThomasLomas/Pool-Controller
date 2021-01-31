@@ -53,7 +53,7 @@ export class PentairService {
 
   togglePower(on = true): Message {
     return this.constructMessage(PentairAction.CHANGE_RUNNING_STATE, [
-      on ? PentairData.REMOTE_CONTROL_ON : PentairData.RUNNING_STATE_OFF,
+      on ? PentairData.RUNNING_STATE_ON : PentairData.RUNNING_STATE_OFF,
     ]);
   }
 
