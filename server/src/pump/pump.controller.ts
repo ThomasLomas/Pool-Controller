@@ -1,4 +1,4 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Param } from '@nestjs/common';
 import { parse } from 'path';
 import { Observable, of } from 'rxjs';
 import { flatMap, map } from 'rxjs/operators';
@@ -14,12 +14,12 @@ export class PumpController {
     private serialPortService: SerialPortService,
   ) {}
 
-  @Get('remote')
-  remote(): Observable<any> {
-    this.loggerService.log('Setting remote on');
+  @Get('remote/:state')
+  remote(@Param('state') state: string): Observable<any> {
+    this.loggerService.log(`Setting remote ${state}`);
 
     return this.serialPortService
-      .write(this.pentairService.remoteControl(true))
+      .write(this.pentairService.remoteControl(state === 'on'))
       .pipe(
         map((response) => {
           this.loggerService.debug(
