@@ -1,23 +1,49 @@
-import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
+import {
+  Injectable,
+  OnApplicationBootstrap,
+  OnModuleDestroy,
+} from '@nestjs/common';
 import { ConfigService } from 'src/config/config.service';
 import * as gpio from 'rpi-gpio';
 import { LoggerService } from 'src/logger/logger.service';
 import { from, Observable, of } from 'rxjs';
-import { flatMap } from 'rxjs/operators';
+import { concatMap } from 'rxjs/operators';
 
 @Injectable()
-export class GpioService implements OnApplicationBootstrap {
+export class GpioService implements OnApplicationBootstrap, OnModuleDestroy {
   constructor(
     private loggerService: LoggerService,
     private configService: ConfigService,
   ) {}
-  private gpiop;
+  private gpiop: typeof gpio.promise;
 
-  onApplicationBootstrap() {
+  onApplicationBootstrap(): void {
     this.loggerService.setContext(GpioService.name);
     this.loggerService.log('Setting up GPIO');
     this.gpiop = gpio.promise;
     this.setupPins();
+  }
+
+  onModuleDestroy(): void {
+    if (!this.configService.getConfig().gpio.mock) {
+      this.gpiop.destroy();
+    }
+  }
+
+  on(pin: number): Observable<any> {
+    if (this.configService.getConfig().gpio.mock) {
+      return of(true);
+    }
+
+    return from(this.gpiop.write(pin, true));
+  }
+
+  off(pin: number): Observable<any> {
+    if (this.configService.getConfig().gpio.mock) {
+      return of(true);
+    }
+
+    return from(this.gpiop.write(pin, false));
   }
 
   private setupPins() {
@@ -43,26 +69,10 @@ export class GpioService implements OnApplicationBootstrap {
 
     from(pins)
       .pipe(
-        flatMap((pin: number) => from(this.gpiop.write(pin, gpio.DIR_HIGH))),
+        concatMap((pin: number) => from(this.gpiop.setup(pin, gpio.DIR_LOW))),
       )
       .subscribe(() => {
         this.loggerService.log('All pins set up');
       });
-  }
-
-  on(pin: number): Observable<any> {
-    if (this.configService.getConfig().gpio.mock) {
-      return of(true);
-    }
-
-    return from(this.gpiop.write(pin, true));
-  }
-
-  off(pin: number): Observable<any> {
-    if (this.configService.getConfig().gpio.mock) {
-      return of(true);
-    }
-
-    return from(this.gpiop.write(pin, false));
   }
 }
