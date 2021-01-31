@@ -14,6 +14,7 @@ import { PentairService } from './pump/pentair.service';
 import { GpioService } from './gpio/gpio.service';
 import { ActuatorService } from './actuator/actuator.service';
 import { HeaterService } from './heater/heater.service';
+import { PumpController } from './pump/pump.controller';
 
 @Module({
   imports: [
@@ -24,7 +25,7 @@ import { HeaterService } from './heater/heater.service';
       wildcard: true,
     }),
   ],
-  controllers: [ConfigController, ItemController],
+  controllers: [ConfigController, ItemController, PumpController],
   providers: [
     LoggerService,
     ConfigService,

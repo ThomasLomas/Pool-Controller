@@ -7,7 +7,7 @@ import { ConfigService } from 'src/config/config.service';
 import * as gpio from 'rpi-gpio';
 import { LoggerService } from 'src/logger/logger.service';
 import { from, Observable, of } from 'rxjs';
-import { concatMap } from 'rxjs/operators';
+import { concatMap, flatMap, mergeAll, toArray } from 'rxjs/operators';
 
 @Injectable()
 export class GpioService implements OnApplicationBootstrap, OnModuleDestroy {
@@ -31,6 +31,8 @@ export class GpioService implements OnApplicationBootstrap, OnModuleDestroy {
   }
 
   on(pin: number): Observable<any> {
+    this.loggerService.debug(`Turning pin ${pin} on`);
+
     if (this.configService.getConfig().gpio.mock) {
       return of(true);
     }
@@ -39,6 +41,8 @@ export class GpioService implements OnApplicationBootstrap, OnModuleDestroy {
   }
 
   off(pin: number): Observable<any> {
+    this.loggerService.debug(`Turning pin ${pin} off`);
+
     if (this.configService.getConfig().gpio.mock) {
       return of(true);
     }
@@ -46,16 +50,27 @@ export class GpioService implements OnApplicationBootstrap, OnModuleDestroy {
     return from(this.gpiop.write(pin, false));
   }
 
+  setup(pin: number): Observable<any> {
+    this.loggerService.debug(`Turning pin ${pin} to low`);
+
+    if (this.configService.getConfig().gpio.mock) {
+      return of(true);
+    }
+
+    return from(this.gpiop.setup(pin, gpio.DIR_LOW));
+  }
+
   private setupPins() {
     const gpioConfig = this.configService.getConfig().gpio;
     if (gpioConfig.mock) {
       this.loggerService.log('GPIO running in mock mode');
-      return;
     } else {
-      this.loggerService.log('GPIO running in LIVE mode');
+      this.loggerService.log(
+        `GPIO running in LIVE mode (naming=${gpioConfig.naming})`,
+      );
+      gpio.setMode(gpioConfig.naming === 'BCM' ? gpio.MODE_BCM : gpio.MODE_RPI);
     }
 
-    gpio.setMode(gpioConfig.naming === 'BCM' ? gpio.MODE_BCM : gpio.MODE_RPI);
     const config = this.configService.getConfig();
     const pins: number[] = [];
 
@@ -69,7 +84,8 @@ export class GpioService implements OnApplicationBootstrap, OnModuleDestroy {
 
     from(pins)
       .pipe(
-        concatMap((pin: number) => from(this.gpiop.setup(pin, gpio.DIR_LOW))),
+        flatMap((pin: number) => this.setup(pin), 1),
+        toArray(),
       )
       .subscribe(() => {
         this.loggerService.log('All pins set up');

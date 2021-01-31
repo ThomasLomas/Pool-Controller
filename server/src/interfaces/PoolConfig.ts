@@ -9,6 +9,7 @@ export interface ItemOutput {
   state: ItemState;
   states: ItemState[];
   pin?: number;
+  pumpMode?: number;
 }
 
 export enum ItemOutputType {

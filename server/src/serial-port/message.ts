@@ -7,7 +7,7 @@ export enum MessageDirection {
 
 export class Message {
   constructor(
-    public data: Buffer | number[],
+    public data: number[],
     public requiresResponse = false,
     public messageDirection = MessageDirection.OUTBOUND,
   ) {}

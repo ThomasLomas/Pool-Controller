@@ -75,8 +75,8 @@ export class SerialPortService
         message.data,
       )} - Response required: ${message.requiresResponse}`,
     );
-    this.outboundQueue.next(message);
 
+    this.outboundQueue.next(message);
     return message.response$.asObservable();
   }
 
@@ -84,47 +84,57 @@ export class SerialPortService
    * Processes the queue sequentially
    */
   private processQueue(): void {
-    this.outboundQueue.pipe(
-      mergeMap(
-        (message: Message) => {
-          // If we require a response then subscribe to the inbound messages
-          if (message.requiresResponse) {
-            const subscription: Subscription = this.inboundQueue.subscribe(
-              (inboundMessage) => {
-                message.response$.next(inboundMessage);
-                message.response$.complete();
-                subscription.unsubscribe();
-              },
-            );
-          }
-
-          this.serialPort.write(message.data, (err) => {
+    this.outboundQueue
+      .pipe(
+        mergeMap(
+          (message: Message) => {
             this.loggerService.debug(
-              `Message sent: ${JSON.stringify(message.data)}`,
+              `Picked up message on oubound queue: ${JSON.stringify(
+                message.data,
+              )}`,
             );
 
-            if (err) {
-              this.loggerService.error(
-                `Serial port completed with error: ${err.message}`,
-                err.stack,
-              );
-              message.response$.error(err);
-              message.response$.complete();
-            } else if (!message.requiresResponse) {
-              message.response$.next(
-                new Message([], false, MessageDirection.INBOUND),
-              );
-              message.response$.complete();
-            }
-          });
+            // If we require a response then subscribe to the inbound messages
+            if (message.requiresResponse) {
+              this.loggerService.debug('Message requires a response');
 
-          // Only move on when we have a response
-          return message.response$.pipe(catchError(() => of({})));
-        },
-        null,
-        1,
-      ),
-    );
+              const subscription: Subscription = this.inboundQueue.subscribe(
+                (inboundMessage) => {
+                  message.response$.next(inboundMessage);
+                  message.response$.complete();
+                  subscription.unsubscribe();
+                },
+              );
+            }
+
+            this.serialPort.write(message.data, (err) => {
+              this.loggerService.debug(
+                `Message sent: ${JSON.stringify(message.data)}`,
+              );
+
+              if (err) {
+                this.loggerService.error(
+                  `Serial port completed with error: ${err.message}`,
+                  err.stack,
+                );
+                message.response$.error(err);
+                message.response$.complete();
+              } else if (!message.requiresResponse) {
+                message.response$.next(
+                  new Message([], false, MessageDirection.INBOUND),
+                );
+                message.response$.complete();
+              }
+            });
+
+            // Only move on when we have a response
+            return message.response$.pipe(catchError(() => of({})));
+          },
+          null,
+          1,
+        ),
+      )
+      .subscribe();
   }
 
   /**
@@ -149,9 +159,9 @@ export class SerialPortService
     this.processQueue();
   }
 
-  private onData(data) {
-    this.loggerService.debug('Received data', JSON.stringify(data));
-    this.inboundQueue.next(new Message(data, false, MessageDirection.INBOUND));
+  private onData(data: Buffer) {
+    this.loggerService.debug(`Received data: ${data.toString('ascii')}`);
+    // this.inboundQueue.next(new Message(data, false, MessageDirection.INBOUND));
   }
 
   async onModuleDestroy() {

@@ -15,31 +15,31 @@ export class ItemUpdatedEvent {
 export class OutputUpdatedEvent {
   oldOutput: ItemOutput;
   newOutput: ItemOutput;
-  type: string;
+  item: PoolItem;
 
-  constructor(newOutput: ItemOutput, oldOutput: ItemOutput, type: string) {
+  constructor(newOutput: ItemOutput, oldOutput: ItemOutput, item: PoolItem) {
     this.oldOutput = oldOutput;
-    this.type = type;
+    this.item = item;
     this.newOutput = newOutput;
   }
 }
 
 export class OutputCreatedEvent {
   output: ItemOutput;
-  type: string;
+  item: PoolItem;
 
-  constructor(output: ItemOutput, type: string) {
+  constructor(output: ItemOutput, item: PoolItem) {
     this.output = output;
-    this.type = type;
+    this.item = item;
   }
 }
 
 export class OutputDeletedEvent {
   output: ItemOutput;
-  type: string;
+  item: PoolItem;
 
-  constructor(output: ItemOutput, type: string) {
+  constructor(output: ItemOutput, item: PoolItem) {
     this.output = output;
-    this.type = type;
+    this.item = item;
   }
 }

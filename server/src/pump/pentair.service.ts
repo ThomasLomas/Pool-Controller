@@ -44,7 +44,7 @@ export class PentairService {
   remoteControl(enable = true): Message {
     return this.constructMessage(PentairAction.REMOTE_CONTROL, [
       enable ? PentairData.REMOTE_CONTROL_ON : PentairData.REMOTE_CONTROL_OFF,
-    ]);
+    ], true);
   }
 
   togglePower(on = true): Message {
@@ -63,20 +63,20 @@ export class PentairService {
     return this.constructMessage(PentairAction.GET_STATUS, [], true);
   }
 
-  parseStatus(response: number[]) {
+  parseStatus(response: Message) {
     // Example:
     // [255, 0, 255, 165, 0, 33, 96,
     //   7, 15, 10, 0, 0, 2, 62, 7, 208, 0, 0, 0, 0, 2, 49, 15, 11,
     // 2, 170]
 
     // Remove packet header and payload header
-    response.splice(0, 7);
+    response.data.splice(0, 7);
 
     // Remove action and data length
-    response.splice(0, 2);
+    response.data.splice(0, 2);
 
     // Remove last two checksum
-    response.splice(-2, 2);
+    response.data.splice(-2, 2);
 
     // We are left with the data
     const [
@@ -91,7 +91,7 @@ export class PentairService {
       timerMin,
       clockHour,
       clockMin,
-    ] = response;
+    ] = response.data;
 
     return {
       isRunning: run === PentairData.RUNNING_STATE_ON,

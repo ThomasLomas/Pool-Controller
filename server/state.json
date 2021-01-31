@@ -14,7 +14,7 @@
   },
   "gpio": {
     "mock": true,
-    "naming": "BCM"
+    "naming": "RPI"
   },
   "temps": [],
   "items": [
@@ -36,7 +36,8 @@
         {
           "name": "Pump 1 (Pool Mode)",
           "id": "output_1",
-          "state": "off",
+          "pumpMode": 1,
+          "state": "on",
           "states": [
             "off",
             "on"
@@ -46,6 +47,7 @@
           "name": "Pump 2 (Spa Mode Heating)",
           "id": "output_2",
           "state": "off",
+          "pumpMode": 2,
           "states": [
             "off",
             "on"
@@ -55,6 +57,7 @@
           "name": "Pump 3 (Spa Mode Hot)",
           "id": "output_3",
           "state": "off",
+          "pumpMode": 3,
           "states": [
             "off",
             "on"
@@ -64,6 +67,7 @@
           "name": "Pump 4 (Not Used)",
           "id": "output_4",
           "state": "off",
+          "pumpMode": 4,
           "states": [
             "off",
             "on"
@@ -82,7 +86,7 @@
           "name": "Suction",
           "id": "output_1",
           "pin": 3,
-          "state": "on",
+          "state": "off",
           "states": [
             "off",
             "on"
@@ -92,7 +96,7 @@
           "name": "Pressure",
           "id": "output_2",
           "pin": 5,
-          "state": "on",
+          "state": "off",
           "states": [
             "off",
             "on"
@@ -120,7 +124,7 @@
         {
           "name": "Spa",
           "pin": 11,
-          "state": "on",
+          "state": "off",
           "id": "output_2",
           "states": [
             "off",
