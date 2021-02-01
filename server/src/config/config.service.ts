@@ -13,7 +13,9 @@ export class ConfigService {
   }
 
   getConfig(): PoolConfig {
-    return require(this.PATH);
+    return JSON.parse(
+      fs.readFileSync(this.PATH).toString('ascii'),
+    ) as PoolConfig;
   }
 
   updateConfig(poolConfig: PoolConfig): PoolConfig {

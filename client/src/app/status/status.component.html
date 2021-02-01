@@ -1,0 +1,10 @@
+<div fxLayout="row" fxLayoutAlign="space-between">
+  <div>
+    <p>Is running: {{ status.isRunning }}</p>
+  </div>
+  <div style="width: 300px; height: 300px;">
+    <span>Pump RPM</span>
+    <mwl-gauge [max]="3100" [value]="status.rpm"></mwl-gauge>
+  </div>
+</div>
+

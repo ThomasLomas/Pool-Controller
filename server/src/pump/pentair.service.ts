@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { Injectable } from '@nestjs/common';
 import { Message, MessageDirection } from 'src/serial-port/message';
-import { PentairAction, PentairData } from './pentair.enum';
+import { PentairAction, PentairData, PentairStatus } from './pentair.enum';
 
 // With help from:
 //    http://cocoontech.com/forums/topic/13548-intelliflow-pump-rs485-protocol/page-5
@@ -67,7 +67,7 @@ export class PentairService {
     return this.constructMessage(PentairAction.GET_STATUS, [], true);
   }
 
-  parseStatus(response: Message) {
+  parseStatus(response: Message): PentairStatus {
     // Example:
     //  [255,0,255,165,0,33,96,7,15,4,0,255,0,0,0,0,0,0,0,0,0,0,18,48,2,129]
 

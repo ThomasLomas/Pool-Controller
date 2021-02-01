@@ -1,4 +1,16 @@
-import { Controller } from '@nestjs/common';
+import { Controller, Get } from '@nestjs/common';
+import { SchedulerRegistry } from '@nestjs/schedule';
+import { ConfigService } from 'src/config/config.service';
 
-@Controller('schedule')
-export class ScheduleController {}
+@Controller('api/schedule')
+export class ScheduleController {
+  constructor(
+    private schedulerRegistry: SchedulerRegistry,
+    private configService: ConfigService,
+  ) {}
+
+  @Get()
+  getSchedule() {
+    return this.configService.getConfig().schedule;
+  }
+}

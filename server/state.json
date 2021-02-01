@@ -113,7 +113,7 @@
           "name": "Pump 1 (Pool Mode)",
           "id": "output_1",
           "pumpMode": 1,
-          "state": "on",
+          "state": "off",
           "states": [
             "off",
             "on"
@@ -159,7 +159,7 @@
       "outputType": "multi",
       "outputs": [
         {
-          "name": "Suction",
+          "name": "Spa Mode (Suction)",
           "id": "output_1",
           "pin": 3,
           "state": "off",
@@ -169,7 +169,7 @@
           ]
         },
         {
-          "name": "Pressure",
+          "name": "Spa Mode (Pressure)",
           "id": "output_2",
           "pin": 5,
           "state": "off",

@@ -1,1 +1,33 @@
-<p>schedule works!</p>
+<h1>Scheduler</h1>
+
+<p *ngIf="!schedulerActive"><strong>SCHEDULER NOT ACTIVE</strong></p>
+
+<table mat-table [dataSource]="schedule.schedules">
+  <ng-container matColumnDef="name">
+    <mat-header-cell *matHeaderCellDef> Name </mat-header-cell>
+    <mat-cell *matCellDef="let row"> {{row.name}} </mat-cell>
+  </ng-container>
+
+  <ng-container matColumnDef="time">
+    <mat-header-cell *matHeaderCellDef> Time </mat-header-cell>
+    <mat-cell *matCellDef="let row"> {{row.time}} </mat-cell>
+  </ng-container>
+
+  <ng-container matColumnDef="action">
+    <mat-header-cell *matHeaderCellDef> Action </mat-header-cell>
+    <mat-cell *matCellDef="let row"> {{row.action}} </mat-cell>
+  </ng-container>
+
+  <ng-container matColumnDef="params">
+    <mat-header-cell *matHeaderCellDef> Parameters </mat-header-cell>
+    <mat-cell *matCellDef="let row"> {{row.params}} </mat-cell>
+  </ng-container>
+
+  <ng-container matColumnDef="active">
+    <mat-header-cell *matHeaderCellDef> Active </mat-header-cell>
+    <mat-cell *matCellDef="let row"> {{row.active}} </mat-cell>
+  </ng-container>
+
+  <mat-header-row *matHeaderRowDef="['name', 'time', 'action', 'params', 'active']"></mat-header-row>
+  <mat-row *matRowDef="let row; columns: ['name', 'time', 'action', 'params', 'active']"></mat-row>
+</table>

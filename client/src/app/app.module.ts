@@ -12,6 +12,7 @@ import { MatListModule } from '@angular/material/list';
 import { MatCardModule } from '@angular/material/card';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatTableModule } from '@angular/material/table';
 
 import { FlexLayoutModule } from '@angular/flex-layout';
 import { HeaderComponent } from './navigation/header/header.component';
@@ -22,6 +23,8 @@ import { SettingsComponent } from './pages/settings/settings.component';
 import { HttpClientModule } from '@angular/common/http';
 import { ConfigService, initConfig } from './config/config.service';
 import { PoolItemComponent } from './pool-item/pool-item.component';
+import { StatusComponent } from './status/status.component';
+import { GaugeModule } from 'angular-gauge';
 
 @NgModule({
   declarations: [
@@ -32,6 +35,7 @@ import { PoolItemComponent } from './pool-item/pool-item.component';
     ScheduleComponent,
     SettingsComponent,
     PoolItemComponent,
+    StatusComponent,
   ],
   imports: [
     HttpClientModule,
@@ -45,7 +49,9 @@ import { PoolItemComponent } from './pool-item/pool-item.component';
     MatListModule,
     MatIconModule,
     BrowserAnimationsModule,
-    FlexLayoutModule
+    MatTableModule,
+    FlexLayoutModule,
+    GaugeModule.forRoot()
   ],
   providers: [
     ConfigService,

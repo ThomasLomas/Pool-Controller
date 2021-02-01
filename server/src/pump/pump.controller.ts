@@ -1,17 +1,19 @@
 import { Controller, Get, Param } from '@nestjs/common';
-import { parse } from 'path';
 import { Observable, of } from 'rxjs';
-import { flatMap, map } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
+import { ConfigService } from 'src/config/config.service';
 import { LoggerService } from 'src/logger/logger.service';
 import { SerialPortService } from 'src/serial-port/serial-port.service';
+import { PentairStatus } from './pentair.enum';
 import { PentairService } from './pentair.service';
 
-@Controller('pump')
+@Controller('api/pump')
 export class PumpController {
   constructor(
     private pentairService: PentairService,
     private loggerService: LoggerService,
     private serialPortService: SerialPortService,
+    private configService: ConfigService,
   ) {}
 
   @Get('remote/:state')
@@ -33,8 +35,20 @@ export class PumpController {
   }
 
   @Get('status')
-  status(): Observable<any> {
+  status(): Observable<PentairStatus> {
     this.loggerService.log('Got status request');
+
+    if (this.configService.getConfig().serialPort.mock) {
+      return of({
+        isRunning: true,
+        watts: 100,
+        rpm: 1700,
+        timerHour: 0,
+        timerMin: 0,
+        clockHour: 17,
+        clockMin: 55,
+      });
+    }
 
     return this.serialPortService.write(this.pentairService.getStatus()).pipe(
       map((status) => {

@@ -17,3 +17,13 @@ export enum PentairData {
   RUNNING_STATE_ON = 10,
   RUNNING_STATE_OFF = 4,
 }
+
+export interface PentairStatus {
+  isRunning: boolean;
+  watts: number;
+  rpm: number;
+  timerHour: number;
+  timerMin: number;
+  clockHour: number;
+  clockMin: number;
+}
