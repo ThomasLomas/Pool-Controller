@@ -78,7 +78,21 @@ export interface GpioConfig {
   naming: 'BCM' | 'RPI';
 }
 
+export interface ScheduleConfig {
+  active: boolean;
+  schedules: Schedule[];
+}
+
+export interface Schedule {
+  name: string;
+  time: string;
+  action: string;
+  params: any[];
+  active: boolean;
+}
+
 export interface PoolConfig {
+  schedule: ScheduleConfig;
   gpio: GpioConfig;
   serialPort: SerialPort;
   temps: PoolTemp[];

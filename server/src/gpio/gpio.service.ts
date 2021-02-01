@@ -7,7 +7,7 @@ import { ConfigService } from 'src/config/config.service';
 import * as gpio from 'rpi-gpio';
 import { LoggerService } from 'src/logger/logger.service';
 import { from, Observable, of } from 'rxjs';
-import { concatMap, flatMap, mergeAll, toArray } from 'rxjs/operators';
+import { flatMap, toArray } from 'rxjs/operators';
 
 @Injectable()
 export class GpioService implements OnApplicationBootstrap, OnModuleDestroy {

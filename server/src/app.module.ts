@@ -15,6 +15,9 @@ import { GpioService } from './gpio/gpio.service';
 import { ActuatorService } from './actuator/actuator.service';
 import { HeaterService } from './heater/heater.service';
 import { PumpController } from './pump/pump.controller';
+import { ScheduleModule } from '@nestjs/schedule';
+import { ScheduleController } from './schedule/schedule.controller';
+import { ScheduleService } from './schedule/schedule.service';
 
 @Module({
   imports: [
@@ -24,8 +27,14 @@ import { PumpController } from './pump/pump.controller';
     EventEmitterModule.forRoot({
       wildcard: true,
     }),
+    ScheduleModule.forRoot(),
   ],
-  controllers: [ConfigController, ItemController, PumpController],
+  controllers: [
+    ConfigController,
+    ItemController,
+    PumpController,
+    ScheduleController,
+  ],
   providers: [
     LoggerService,
     ConfigService,
@@ -36,6 +45,7 @@ import { PumpController } from './pump/pump.controller';
     GpioService,
     ActuatorService,
     HeaterService,
+    ScheduleService,
   ],
 })
 export class AppModule implements NestModule {
