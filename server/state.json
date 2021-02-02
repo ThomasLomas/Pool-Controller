@@ -94,7 +94,7 @@
           "name": "Pump 1 (Pool Mode)",
           "id": "output_1",
           "pumpMode": 1,
-          "state": "off",
+          "state": "on",
           "states": [
             "off",
             "on"
