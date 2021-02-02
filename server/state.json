@@ -1,53 +1,4 @@
 {
-  "1": {
-    "name": "Pump",
-    "active": true,
-    "id": "item_2",
-    "type": "pump",
-    "outputType": "single",
-    "outputs": [
-      {
-        "name": "Pump 1 (Pool Mode)",
-        "id": "output_1",
-        "pumpMode": 1,
-        "state": "on",
-        "states": [
-          "off",
-          "on"
-        ]
-      },
-      {
-        "name": "Pump 2 (Spa Mode Heating)",
-        "id": "output_2",
-        "state": "off",
-        "pumpMode": 2,
-        "states": [
-          "off",
-          "on"
-        ]
-      },
-      {
-        "name": "Pump 3 (Spa Mode Hot)",
-        "id": "output_3",
-        "state": "off",
-        "pumpMode": 3,
-        "states": [
-          "off",
-          "on"
-        ]
-      },
-      {
-        "name": "Pump 4 (Not Used)",
-        "id": "output_4",
-        "state": "off",
-        "pumpMode": 4,
-        "states": [
-          "off",
-          "on"
-        ]
-      }
-    ]
-  },
   "serialPort": {
     "mock": true,
     "rs485Port": "/dev/ttyUSB0",
@@ -68,22 +19,52 @@
         "active": true,
         "name": "Start cleaning",
         "time": "0 0 23 * * *",
-        "action": "changeOutputState",
-        "params": [
-          "item_2",
-          "output_1",
-          "on"
+        "actions": [
+          {
+            "action": "changeOutputState",
+            "params": [
+              "item_3",
+              "output_1",
+              "off"
+            ]
+          },
+          {
+            "action": "changeOutputState",
+            "params": [
+              "item_3",
+              "output_2",
+              "off"
+            ]
+          },
+          {
+            "action": "pause",
+            "params": [
+              60
+            ]
+          },
+          {
+            "action": "changeOutputState",
+            "params": [
+              "item_2",
+              "output_1",
+              "on"
+            ]
+          }
         ]
       },
       {
         "active": true,
         "name": "Stop cleaning",
         "time": "0 0 11 * * *",
-        "action": "changeOutputState",
-        "params": [
-          "item_2",
-          "output_1",
-          "off"
+        "actions": [
+          {
+            "action": "changeOutputState",
+            "params": [
+              "item_2",
+              "output_1",
+              "off"
+            ]
+          }
         ]
       }
     ]

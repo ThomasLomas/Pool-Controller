@@ -2,6 +2,8 @@ import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { CronJob } from 'cron';
+import { concat, Observable, of } from 'rxjs';
+import { delay } from 'rxjs/operators';
 import { ConfigService } from 'src/config/config.service';
 import { ItemOutputType, ItemState, PoolItem } from 'src/interfaces/PoolConfig';
 import { ItemUpdatedEvent } from 'src/item/item.event';
@@ -31,12 +33,19 @@ export class ScheduleService implements OnApplicationBootstrap {
         .filter((schedule) => schedule.active)
         .forEach((schedule) => {
           const job = new CronJob(schedule.time, () => {
-            this.loggerService.debug(
-              `Invoking ${schedule.action} with params: ${JSON.stringify(
-                schedule.params,
-              )}`,
+            this.loggerService.log(`Job ${schedule.name} now running`);
+
+            const actions = schedule.actions.map(
+              (action) =>
+                this[action.action].call(
+                  this,
+                  ...action.params,
+                ) as Observable<any>,
             );
-            this[schedule.action].call(this, ...schedule.params);
+
+            concat(actions).subscribe(() => {
+              this.loggerService.log(`Job ${schedule.name} now completed`);
+            });
           });
 
           this.schedulerRegistry.addCronJob(schedule.name, job);
@@ -51,7 +60,15 @@ export class ScheduleService implements OnApplicationBootstrap {
     }
   }
 
-  changeOutputState(itemId: string, outputId: string, state: ItemState) {
+  pause(seconds: number): Observable<boolean> {
+    return of(true).pipe(delay(seconds * 1000));
+  }
+
+  changeOutputState(
+    itemId: string,
+    outputId: string,
+    state: ItemState,
+  ): Observable<any> {
     this.loggerService.log(
       `Changing ${itemId} -> ${outputId} state to ${state}`,
     );
@@ -79,7 +96,7 @@ export class ScheduleService implements OnApplicationBootstrap {
 
       console.log(item);
 
-      config[itemIndex] = item;
+      config.items[itemIndex] = item;
       this.configService.updateConfig(config);
 
       this.eventEmitter.emit(
@@ -87,5 +104,7 @@ export class ScheduleService implements OnApplicationBootstrap {
         new ItemUpdatedEvent(item, oldItem, item.type),
       );
     }
+
+    return of(true);
   }
 }

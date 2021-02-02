@@ -86,9 +86,13 @@ export interface ScheduleConfig {
 export interface Schedule {
   name: string;
   time: string;
-  action: string;
-  params: any[];
+  actions: ScheduleAction[];
   active: boolean;
+}
+
+export interface ScheduleAction {
+  action: string;
+  params: string[];
 }
 
 export interface PoolConfig {
