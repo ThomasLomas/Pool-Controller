@@ -24,7 +24,6 @@ import { HttpClientModule } from '@angular/common/http';
 import { ConfigService, initConfig } from './config/config.service';
 import { PoolItemComponent } from './pool-item/pool-item.component';
 import { StatusComponent } from './status/status.component';
-import { GaugeModule } from 'angular-gauge';
 
 @NgModule({
   declarations: [
@@ -51,7 +50,6 @@ import { GaugeModule } from 'angular-gauge';
     BrowserAnimationsModule,
     MatTableModule,
     FlexLayoutModule,
-    GaugeModule.forRoot()
   ],
   providers: [
     ConfigService,

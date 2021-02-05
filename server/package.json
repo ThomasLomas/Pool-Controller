@@ -30,6 +30,7 @@
     "@nestjs/serve-static": "^2.1.4",
     "@serialport/binding-mock": "^9.0.2",
     "@types/rpi-gpio": "^2.1.1",
+    "influx": "^5.7.0",
     "mcp-spi-adc": "^3.1.0",
     "mongoose": "^5.11.13",
     "reflect-metadata": "^0.1.13",

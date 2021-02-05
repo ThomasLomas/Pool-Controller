@@ -3,6 +3,8 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from 'src/config/config.service';
 import { LoggerService } from 'src/logger/logger.service';
 import { PoolTemp } from 'src/interfaces/PoolConfig';
+import { InfluxService } from 'src/influx/influx.service';
+import * as os from 'os';
 
 @Injectable()
 export class TemperatureService
@@ -10,7 +12,10 @@ export class TemperatureService
   constructor(
     private loggerService: LoggerService,
     private configService: ConfigService,
-  ) {}
+    private influxService: InfluxService,
+  ) {
+    this.loggerService.setContext(TemperatureService.name);
+  }
 
   private spiHandles = {};
   private temperatures = {};
@@ -29,6 +34,10 @@ export class TemperatureService
             this.temperatures[temperature.id] = Math.round(
               Math.random() * 50 + 40,
             );
+
+            if (temperature.influx) {
+              this.updateInflux(temperature.id);
+            }
           }, temperature.interval);
           return;
         }
@@ -44,11 +53,23 @@ export class TemperatureService
                   temperature,
                   reading.rawValue,
                 );
+
+                if (temperature.influx) {
+                  this.updateInflux(temperature.id);
+                }
               });
             }, temperature.interval);
           },
         );
       });
+  }
+
+  updateInflux(temperatureId) {
+    this.influxService.write(
+      'temperatures',
+      { temp: this.temperatures[temperatureId] },
+      { hostname: os.hostname, id: temperatureId },
+    );
   }
 
   getTemperature(id: string) {
@@ -79,7 +100,9 @@ export class TemperatureService
 
   onModuleDestroy() {
     Object.keys(this.spiHandles).forEach((spiHandleKey) => {
-      this.spiHandles[spiHandleKey].close();
+      this.spiHandles[spiHandleKey].close(() => {
+        this.loggerService.log(`${spiHandleKey} now closed`);
+      });
     });
   }
 }

@@ -36,6 +36,7 @@ export interface PoolItem {
 export interface PoolTemp {
   id: string;
   active: boolean;
+  influx: boolean;
   mock: boolean;
   name: string;
   type: 'spi';
@@ -102,7 +103,14 @@ export interface ScheduleAction {
   params: string[];
 }
 
+export interface InfluxConfig {
+  active: boolean;
+  db: string;
+  host: string;
+}
+
 export interface PoolConfig {
+  influx: InfluxConfig;
   schedule: ScheduleConfig;
   gpio: GpioConfig;
   serialPort: SerialPort;

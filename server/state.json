@@ -12,6 +12,11 @@
       "lock": false
     }
   },
+  "influx": {
+    "active": true,
+    "db": "pool",
+    "host": "10.0.1.203"
+  },
   "schedule": {
     "active": true,
     "schedules": [
@@ -78,6 +83,7 @@
       "id": "temp_1",
       "active": true,
       "mock": true,
+      "influx": true,
       "name": "Water",
       "type": "spi",
       "channel": 0,
