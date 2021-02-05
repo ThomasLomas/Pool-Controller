@@ -32,7 +32,7 @@ export class TemperatureService
         if (temperature.mock) {
           setInterval(() => {
             this.temperatures[temperature.id] = Math.round(
-              Math.random() * 50 + 40,
+              Math.random() * 400 + 700,
             );
 
             if (temperature.influx) {

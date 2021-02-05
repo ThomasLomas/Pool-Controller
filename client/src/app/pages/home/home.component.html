@@ -2,4 +2,6 @@
 
 <app-status></app-status>
 
-<app-pool-item *ngFor="let item of items" [item]="item"></app-pool-item>
+<div fxLayout="row wrap" fxLayoutGap="grid" fxLayoutAlign="space-between">
+  <app-pool-item *ngFor="let item of items" [item]="item" fxFlex="33%" fxFlex.sm="50%" fxFlex.xs="100%"></app-pool-item>
+</div>
