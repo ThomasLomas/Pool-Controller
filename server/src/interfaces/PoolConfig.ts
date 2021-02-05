@@ -35,8 +35,15 @@ export interface PoolItem {
 
 export interface PoolTemp {
   id: string;
-  description: string;
-  value: number;
+  active: boolean;
+  mock: boolean;
+  name: string;
+  type: 'spi';
+  beta: number;
+  adcMax: number;
+  speed: number;
+  interval: number;
+  channel: number;
 }
 
 export interface SerialPort {

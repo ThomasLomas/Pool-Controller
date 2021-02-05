@@ -73,7 +73,20 @@
     "mock": true,
     "naming": "RPI"
   },
-  "temps": [],
+  "temps": [
+    {
+      "id": "temp_1",
+      "active": true,
+      "mock": true,
+      "name": "Water",
+      "type": "spi",
+      "channel": 0,
+      "beta": 4516,
+      "adcMax": 1023,
+      "speed": 20000,
+      "interval": 5000
+    }
+  ],
   "items": [
     {
       "name": "Salt",

@@ -18,6 +18,8 @@ import { PumpController } from './pump/pump.controller';
 import { ScheduleModule } from '@nestjs/schedule';
 import { ScheduleController } from './schedule/schedule.controller';
 import { ScheduleService } from './schedule/schedule.service';
+import { TemperatureService } from './temperature/temperature.service';
+import { TemperatureController } from './temperature/temperature.controller';
 
 @Module({
   imports: [
@@ -34,6 +36,7 @@ import { ScheduleService } from './schedule/schedule.service';
     ItemController,
     PumpController,
     ScheduleController,
+    TemperatureController,
   ],
   providers: [
     LoggerService,
@@ -46,6 +49,7 @@ import { ScheduleService } from './schedule/schedule.service';
     ActuatorService,
     HeaterService,
     ScheduleService,
+    TemperatureService,
   ],
 })
 export class AppModule implements NestModule {
