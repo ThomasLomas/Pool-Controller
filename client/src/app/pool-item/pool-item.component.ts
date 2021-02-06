@@ -17,7 +17,7 @@ export class PoolItemComponent implements OnInit {
   onOutputToggle(output: ItemOutput, event: MatSlideToggleChange) {
     // If Single reset all
     if (this.item.outputType === ItemOutputType.SINGLE) {
-      this.item.outputs.forEach(o => {
+      this.item.outputs.filter((o) => (o.state === ItemState.ON && o.id !== output.id)).forEach(o => {
         o.state = ItemState.OFF;
         this.sendOutputUpdate(o);
       });
