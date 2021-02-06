@@ -172,7 +172,7 @@
           "name": "Spa Mode (Pressure)",
           "id": "output_2",
           "pin": 13,
-          "state": "on",
+          "state": "off",
           "states": [
             "off",
             "on"
