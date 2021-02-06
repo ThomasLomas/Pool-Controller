@@ -27,6 +27,7 @@ export class SerialPortService
   private outboundQueue: Subject<Message> = new Subject<Message>();
   private inboundQueue: Subject<Message> = new Subject<Message>();
   private inboundBytes: number[] = [];
+  private expectingData = false; // Will send random bytes that we dont care about
 
   private config: PoolConfig;
   private serialPort: SerialPort;
@@ -101,6 +102,7 @@ export class SerialPortService
 
             // If we require a response then subscribe to the inbound messages
             if (message.requiresResponse) {
+              this.expectingData = true;
               this.loggerService.debug('Message requires a response');
 
               const subscription: Subscription = this.inboundQueue.subscribe(
@@ -183,6 +185,12 @@ export class SerialPortService
 
   private onData(data: Buffer) {
     const parsedData = data.toJSON().data;
+
+    if (!this.expectingData) {
+      this.loggerService.debug(`Received unexpected data: ${parsedData}`);
+      return;
+    }
+
     this.inboundBytes = this.inboundBytes.concat(parsedData);
 
     this.loggerService.debug(
@@ -222,6 +230,7 @@ export class SerialPortService
         this.loggerService.debug(
           `Completed full response: ${JSON.stringify(this.inboundBytes)}`,
         );
+        this.expectingData = false;
         this.inboundQueue.next(
           new Message(this.inboundBytes, false, MessageDirection.INBOUND),
         );
