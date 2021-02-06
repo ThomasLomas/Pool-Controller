@@ -11,6 +11,7 @@ import { Observable, of, Subject, Subscription } from 'rxjs';
 import { catchError, mergeMap } from 'rxjs/operators';
 import { Message, MessageDirection } from './message';
 import { PentairService } from 'src/pump/pentair.service';
+import { PoolConfig } from 'src/interfaces/PoolConfig';
 
 @Injectable()
 export class SerialPortService
@@ -27,15 +28,16 @@ export class SerialPortService
   private inboundQueue: Subject<Message> = new Subject<Message>();
   private inboundBytes: number[] = [];
 
+  private config: PoolConfig;
   private serialPort: SerialPort;
   private isOpen = false;
 
   onApplicationBootstrap() {
-    const config = this.configService.getConfig();
+    this.config = this.configService.getConfig();
     this.loggerService.log('Setting up serial port');
 
     // Set up the connection
-    if (config.serialPort.mock) {
+    if (this.config.serialPort.mock) {
       this.loggerService.log('Running in mock mode');
 
       // The dev typescript for this show it as readonly, but this contradicts the documentation.
@@ -49,8 +51,8 @@ export class SerialPortService
     } else {
       this.loggerService.log('Running in live mode');
       this.serialPort = new SerialPort(
-        config.serialPort.rs485Port,
-        config.serialPort.portSettings,
+        this.config.serialPort.rs485Port,
+        this.config.serialPort.portSettings,
       );
     }
 
@@ -111,6 +113,20 @@ export class SerialPortService
                   subscription.unsubscribe();
                 },
               );
+
+              // For now in mock mode force a message back
+              if (this.config.serialPort.mock) {
+                setTimeout(() => {
+                  this.inboundQueue.next(
+                    new Message(
+                      // eslint-disable-next-line prettier/prettier
+                      [255, 0, 255, 165, 0, 33, 96, 7, 15, 10, 0, 0, 2, 62, 7, 208, 0, 0, 0, 0, 2, 49, 15, 11, 2, 170],
+                      false,
+                      MessageDirection.INBOUND,
+                    ),
+                  );
+                }, 50);
+              }
             }
 
             this.serialPort.write(message.data, (err) => {

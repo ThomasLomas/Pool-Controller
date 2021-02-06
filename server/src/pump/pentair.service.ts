@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { Injectable } from '@nestjs/common';
+import { LoggerService } from 'src/logger/logger.service';
 import { Message, MessageDirection } from 'src/serial-port/message';
 import { PentairAction, PentairData, PentairStatus } from './pentair.enum';
 
@@ -9,6 +10,10 @@ import { PentairAction, PentairData, PentairStatus } from './pentair.enum';
 
 @Injectable()
 export class PentairService {
+  constructor(private loggerService: LoggerService) {
+    this.loggerService.setContext(PentairService.name);
+  }
+
   private constructMessage(
     action: number,
     data: number[],
@@ -46,24 +51,31 @@ export class PentairService {
   }
 
   remoteControl(enable = true): Message {
+    this.loggerService.debug(`Generated message: remoteControl(${enable})`);
     return this.constructMessage(PentairAction.REMOTE_CONTROL, [
       enable ? PentairData.REMOTE_CONTROL_ON : PentairData.REMOTE_CONTROL_OFF,
     ]);
   }
 
   togglePower(on = true): Message {
+    this.loggerService.debug(`Generated message: togglePower(${on})`);
+
     return this.constructMessage(PentairAction.CHANGE_RUNNING_STATE, [
       on ? PentairData.RUNNING_STATE_ON : PentairData.RUNNING_STATE_OFF,
     ]);
   }
 
   setMode(mode = 1): Message {
+    this.loggerService.debug(`Generated message: setMode(${mode})`);
+
     return this.constructMessage(PentairAction.SET_MODE, [
       PentairData[`PUMP_SPEED_${mode}`],
     ]);
   }
 
   getStatus(): Message {
+    this.loggerService.debug(`Generated message: getStatus()`);
+
     return this.constructMessage(PentairAction.GET_STATUS, [], true);
   }
 

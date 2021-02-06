@@ -12,11 +12,11 @@ export class StatusComponent implements OnInit {
 
   constructor(private httpClient: HttpClient) { }
 
-  public status!: PentairStatus;
+  // public status!: PentairStatus;
 
   ngOnInit(): void {
-    this.httpClient.get<PentairStatus>('/api/pump/status').subscribe(status => {
-      this.status = status;
-    });
+    // this.httpClient.get<PentairStatus>('/api/pump/status').subscribe(status => {
+    //   this.status = status;
+    // });
   }
 }
