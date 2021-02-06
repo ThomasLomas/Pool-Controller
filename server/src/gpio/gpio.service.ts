@@ -34,10 +34,10 @@ export class GpioService implements OnApplicationBootstrap, OnModuleDestroy {
     this.loggerService.debug(`Turning pin ${pin} on`);
 
     if (this.configService.getConfig().gpio.mock) {
-      return of(true);
+      return of(false);
     }
 
-    return from(this.gpiop.write(pin, true));
+    return from(this.gpiop.write(pin, false));
   }
 
   off(pin: number): Observable<any> {
@@ -47,7 +47,7 @@ export class GpioService implements OnApplicationBootstrap, OnModuleDestroy {
       return of(true);
     }
 
-    return from(this.gpiop.write(pin, false));
+    return from(this.gpiop.write(pin, true));
   }
 
   setup(pin: number): Observable<any> {
@@ -57,7 +57,7 @@ export class GpioService implements OnApplicationBootstrap, OnModuleDestroy {
       return of(true);
     }
 
-    return from(this.gpiop.setup(pin, gpio.DIR_LOW));
+    return from(this.gpiop.setup(pin, gpio.DIR_HIGH));
   }
 
   private setupPins() {

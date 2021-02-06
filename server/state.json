@@ -44,14 +44,14 @@
           {
             "action": "pause",
             "params": [
-              60
+              90
             ]
           },
           {
             "action": "changeOutputState",
             "params": [
               "item_2",
-              "output_1",
+              "output_2",
               "on"
             ]
           }
@@ -66,7 +66,7 @@
             "action": "changeOutputState",
             "params": [
               "item_2",
-              "output_1",
+              "output_2",
               "off"
             ]
           }
@@ -110,17 +110,17 @@
       "outputType": "single",
       "outputs": [
         {
-          "name": "Pump 1 (Pool Mode)",
+          "name": "Pump 1 (Not used)",
           "id": "output_1",
           "pumpMode": 1,
-          "state": "on",
+          "state": "off",
           "states": [
             "off",
             "on"
           ]
         },
         {
-          "name": "Pump 2 (Spa Mode Heating)",
+          "name": "Pump 2 (Pool Mode)",
           "id": "output_2",
           "state": "off",
           "pumpMode": 2,
@@ -130,7 +130,7 @@
           ]
         },
         {
-          "name": "Pump 3 (Spa Mode Hot)",
+          "name": "Pump 3 (Not used)",
           "id": "output_3",
           "state": "off",
           "pumpMode": 3,
@@ -140,7 +140,7 @@
           ]
         },
         {
-          "name": "Pump 4 (Not Used)",
+          "name": "Pump 4 (Full Power)",
           "id": "output_4",
           "state": "off",
           "pumpMode": 4,
@@ -161,7 +161,7 @@
         {
           "name": "Spa Mode (Suction)",
           "id": "output_1",
-          "pin": 3,
+          "pin": 15,
           "state": "off",
           "states": [
             "off",
@@ -171,8 +171,8 @@
         {
           "name": "Spa Mode (Pressure)",
           "id": "output_2",
-          "pin": 5,
-          "state": "off",
+          "pin": 13,
+          "state": "on",
           "states": [
             "off",
             "on"
@@ -190,7 +190,7 @@
         {
           "name": "Pool",
           "state": "off",
-          "pin": 7,
+          "pin": 8,
           "id": "output_1",
           "states": [
             "off",
@@ -199,7 +199,7 @@
         },
         {
           "name": "Spa",
-          "pin": 11,
+          "pin": 10,
           "state": "off",
           "id": "output_2",
           "states": [

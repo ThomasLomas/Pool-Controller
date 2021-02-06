@@ -19,14 +19,15 @@ export class PoolItemComponent implements OnInit {
     if (this.item.outputType === ItemOutputType.SINGLE) {
       this.item.outputs.forEach(o => {
         o.state = ItemState.OFF;
+        this.sendOutputUpdate(o);
       });
     }
 
     output.state = (event.checked) ? ItemState.ON : ItemState.OFF;
-    this.sendItemUpdate();
+    this.sendOutputUpdate(output);
   }
 
-  private sendItemUpdate() {
-    this.httpClient.put('/api/item', this.item).subscribe();
+  private sendOutputUpdate(output: ItemOutput) {
+    this.httpClient.get(`/api/item/${this.item.id}/${output.id}/${output.state}`).subscribe();
   }
 }

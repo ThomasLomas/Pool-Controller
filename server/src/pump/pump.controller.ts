@@ -47,7 +47,7 @@ export class PumpController {
         timerMin: 0,
         clockHour: 17,
         clockMin: 55,
-      });
+      } as PentairStatus);
     }
 
     return this.serialPortService.write(this.pentairService.getStatus()).pipe(
@@ -58,7 +58,7 @@ export class PumpController {
           JSON.stringify(parsedStatus),
         );
 
-        return parsedStatus;
+        return parsedStatus as PentairStatus;
       }),
     );
   }
