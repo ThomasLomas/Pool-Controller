@@ -70,6 +70,11 @@ export class PumpService {
           ),
           map(() =>
             this.serialPortService.write(
+              this.pentairService.togglePower(true),
+            ),
+          ),
+          map(() =>
+            this.serialPortService.write(
               this.pentairService.remoteControl(false),
             ),
           ),

@@ -95,9 +95,9 @@ export class TemperatureService
     const celcius = kelvin - 273.15; // convert to Celsius
     const fahrenheit = (9.0 * celcius) / 5.0 + 32.0; // convert to Fahrenheit
 
-    this.loggerService.debug(
-      `Calculating Temperature: ${adc} to ${fahrenheit} F`,
-    );
+    // this.loggerService.debug(
+    //   `Calculating Temperature: ${adc} to ${fahrenheit} F`,
+    // );
 
     return fahrenheit;
   }
