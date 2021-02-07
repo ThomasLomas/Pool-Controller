@@ -42,13 +42,20 @@ export class PumpService {
             this.serialPortService.write(this.pentairService.togglePower(true)),
           ),
         )
-        .subscribe(() => {
-          this.loggerService.log(
-            `Output ${onOutput.name} on pump mode ${onOutput.pumpMode} now turned on`,
-          );
-
-          this.queuedPumpUpdate = false;
-        });
+        .subscribe(
+          () => {
+            this.loggerService.log(
+              `Output ${onOutput.name} on pump mode ${onOutput.pumpMode} now turned on`,
+            );
+            this.queuedPumpUpdate = false;
+          },
+          (err) => {
+            this.loggerService.error(
+              `Encountered error: ${JSON.stringify(err)}`,
+            );
+            this.queuedPumpUpdate = false;
+          },
+        );
     } else {
       this.loggerService.log(
         'No pump outputs turned on, proceeding to shut off',
@@ -79,10 +86,18 @@ export class PumpService {
             ),
           ),
         )
-        .subscribe(() => {
-          this.loggerService.log('All outputs shut down');
-          this.queuedPumpUpdate = false;
-        });
+        .subscribe(
+          () => {
+            this.loggerService.log('All outputs shut down');
+            this.queuedPumpUpdate = false;
+          },
+          (err) => {
+            this.loggerService.error(
+              `Encountered error: ${JSON.stringify(err)}`,
+            );
+            this.queuedPumpUpdate = false;
+          },
+        );
     }
   }
 
@@ -111,6 +126,8 @@ export class PumpService {
       setTimeout(() => {
         this.handlePumpUpdates(payload.item.id);
       }, 5000);
+    } else {
+      this.loggerService.log('Pump update already underway');
     }
   }
 }

@@ -100,6 +100,8 @@ export class SerialPortService
               )}`,
             );
 
+            let responseSubscription: Subscription;
+
             const writeMessage = () => {
               this.serialPort.write(message.data, (err) => {
                 this.loggerService.debug(
@@ -113,6 +115,10 @@ export class SerialPortService
                   );
                   message.response$.error(err);
                   message.response$.complete();
+
+                  if (responseSubscription) {
+                    responseSubscription.unsubscribe();
+                  }
                 } else if (!message.requiresResponse) {
                   message.response$.next(
                     new Message([], false, MessageDirection.INBOUND),
@@ -125,17 +131,35 @@ export class SerialPortService
             // If we require a response then subscribe to the inbound messages
             if (message.requiresResponse) {
               this.expectingData = true;
+              let timeout: NodeJS.Timeout;
               this.loggerService.debug('Message requires a response');
 
-              // After 15 seconds then try again
-              const timeout = setTimeout(() => {
-                this.loggerService.error(
-                  'Did not receive a response in time. Retrying',
-                );
-                writeMessage();
-              }, 10000);
+              const handleTimeout = () => {
+                message.retries += 1;
+                if (message.retries > message.maxTries) {
+                  this.loggerService.error(
+                    'Did not receive a response in time. Giving up',
+                  );
+                  message.response$.error('No message response received');
+                  message.response$.complete();
+                  responseSubscription.unsubscribe();
+                } else {
+                  this.loggerService.error(
+                    `Did not receive a response in time. Retrying ${message.retries}/${message.maxTries} times.`,
+                  );
+                  writeMessage();
+                  timeout = setTimeout(() => {
+                    handleTimeout();
+                  }, 5000);
+                }
+              };
 
-              const subscription: Subscription = this.inboundQueue.subscribe(
+              // After 5 seconds then try again
+              timeout = setTimeout(() => {
+                handleTimeout();
+              }, 5000);
+
+              responseSubscription = this.inboundQueue.subscribe(
                 (inboundMessage) => {
                   this.loggerService.log(
                     'Received message on the inbound queue',
@@ -143,7 +167,7 @@ export class SerialPortService
                   clearTimeout(timeout);
                   message.response$.next(inboundMessage);
                   message.response$.complete();
-                  subscription.unsubscribe();
+                  responseSubscription.unsubscribe();
                 },
               );
 
