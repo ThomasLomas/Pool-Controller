@@ -65,11 +65,17 @@ export class TemperatureService
   }
 
   updateInflux(temperatureId) {
-    this.influxService.write(
-      'temperatures',
-      { temp: this.temperatures[temperatureId] },
-      { hostname: os.hostname, id: temperatureId },
-    );
+    this.influxService
+      .write(
+        'temperatures',
+        { temp: this.temperatures[temperatureId] },
+        { hostname: os.hostname, id: temperatureId },
+      )
+      .catch((err) => {
+        this.loggerService.error(
+          `Error writing to influx: ${JSON.stringify(err)}`,
+        );
+      });
   }
 
   getTemperature(id: string) {
