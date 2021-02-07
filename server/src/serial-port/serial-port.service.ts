@@ -100,16 +100,47 @@ export class SerialPortService
               )}`,
             );
 
+            const writeMessage = () => {
+              this.serialPort.write(message.data, (err) => {
+                this.loggerService.debug(
+                  `Message sent: ${JSON.stringify(message.data)}`,
+                );
+
+                if (err) {
+                  this.loggerService.error(
+                    `Serial port completed with error: ${err.message}`,
+                    err.stack,
+                  );
+                  message.response$.error(err);
+                  message.response$.complete();
+                } else if (!message.requiresResponse) {
+                  message.response$.next(
+                    new Message([], false, MessageDirection.INBOUND),
+                  );
+                  message.response$.complete();
+                }
+              });
+            };
+
             // If we require a response then subscribe to the inbound messages
             if (message.requiresResponse) {
               this.expectingData = true;
               this.loggerService.debug('Message requires a response');
+
+              // After 15 seconds then try again
+              const timeout = setTimeout(() => {
+                this.loggerService.error(
+                  'Did not receive a response in time. Retrying',
+                );
+                writeMessage();
+              }, 10000);
 
               const subscription: Subscription = this.inboundQueue.subscribe(
                 (inboundMessage) => {
                   this.loggerService.log(
                     'Received message on the inbound queue',
                   );
+                  clearTimeout(timeout);
                   message.response$.next(inboundMessage);
                   message.response$.complete();
                   subscription.unsubscribe();
@@ -131,25 +162,7 @@ export class SerialPortService
               }
             }
 
-            this.serialPort.write(message.data, (err) => {
-              this.loggerService.debug(
-                `Message sent: ${JSON.stringify(message.data)}`,
-              );
-
-              if (err) {
-                this.loggerService.error(
-                  `Serial port completed with error: ${err.message}`,
-                  err.stack,
-                );
-                message.response$.error(err);
-                message.response$.complete();
-              } else if (!message.requiresResponse) {
-                message.response$.next(
-                  new Message([], false, MessageDirection.INBOUND),
-                );
-                message.response$.complete();
-              }
-            });
+            writeMessage();
 
             // Only move on when we have a response
             return message.response$.pipe(catchError(() => of({})));
