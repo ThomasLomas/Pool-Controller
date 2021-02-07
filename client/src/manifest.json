@@ -1,0 +1,24 @@
+{
+  "short_name": "Pool Controls",
+  "name": "Pool Controls",
+  "icons": [
+    {
+      "src": "/assets/icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "/assets/icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#b9c7db",
+  "display": "standalone",
+  "scope": "/",
+  "theme_color": "#b9c7db",
+  "shortcuts": [],
+  "description": "Controls the pool",
+  "screenshots": []
+}
