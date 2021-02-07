@@ -54,3 +54,10 @@ You will want to use PM2 or some other
 ```bash
 npm start
 ```
+
+# Credits
+
+1. https://github.com/tagyoureit/nodejs-poolController
+2. http://www.wolfteck.com/2019/02/05/pentair_pump_rs-485_api/
+3. http://cocoontech.com/forums/topic/13548-intelliflow-pump-rs485-protocol/page-5
+4. https://www.reddit.com/r/pools/comments/l27jtw/built_a_pool_controller_for_300_controlled_using/
