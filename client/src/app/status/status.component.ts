@@ -9,14 +9,18 @@ import { PentairStatus } from '../../../../server/src/pump/pentair.enum';
   styleUrls: ['./status.component.scss']
 })
 export class StatusComponent implements OnInit {
-  constructor(private httpClient: HttpClient) { }
+  public status!: PentairStatus;
 
-  // public status!: PentairStatus;
+  constructor(private httpClient: HttpClient) {
+    this.refreshStatus();
+  }
 
-  ngOnInit(): void {
-    // this.httpClient.get<PentairStatus>('/api/pump/status').subscribe(status => {
-    //   this.status = status;
-    // });
+  ngOnInit(): void { }
+
+  refreshStatus(): void {
+    this.httpClient.get<PentairStatus>('/api/pump/status').subscribe(status => {
+      this.status = status;
+    });
   }
 
   refreshGraph(): void {

@@ -2,6 +2,7 @@ import { Controller, Get, Param } from '@nestjs/common';
 import { Observable, of } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { ConfigService } from 'src/config/config.service';
+import { ItemState, ItemType } from 'src/interfaces/PoolConfig';
 import { LoggerService } from 'src/logger/logger.service';
 import { SerialPortService } from 'src/serial-port/serial-port.service';
 import { PentairStatus } from './pentair.enum';
@@ -37,8 +38,15 @@ export class PumpController {
   @Get('status')
   status(): Observable<PentairStatus> {
     this.loggerService.log('Got status request');
+    const config = this.configService.getConfig();
 
-    if (this.configService.getConfig().serialPort.mock) {
+    if (config.items.find(i => i.type === ItemType.PUMP).outputs.filter(o => o.state === ItemState.ON).length === 0) {
+      return of({
+        isRunning: false
+      });
+    }
+
+    if (config.serialPort.mock) {
       return of({
         isRunning: true,
         watts: 100,

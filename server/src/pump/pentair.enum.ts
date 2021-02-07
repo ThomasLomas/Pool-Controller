@@ -20,10 +20,10 @@ export enum PentairData {
 
 export interface PentairStatus {
   isRunning: boolean;
-  watts: number;
-  rpm: number;
-  timerHour: number;
-  timerMin: number;
-  clockHour: number;
-  clockMin: number;
+  watts?: number;
+  rpm?: number;
+  timerHour?: number;
+  timerMin?: number;
+  clockHour?: number;
+  clockMin?: number;
 }

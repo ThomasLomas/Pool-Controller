@@ -4,3 +4,16 @@
     <button class="refresh-button" type="button" (click)="refreshGraph()"><mat-icon>refresh</mat-icon></button>
   </mat-card-content>
 </mat-card>
+
+<mat-card *ngIf="status">
+  <mat-card-content>
+    <button class="refresh-button refresh-button-status" type="button" (click)="refreshStatus()"><mat-icon>refresh</mat-icon></button>
+    <p class="status-line">
+      <strong>Status: </strong> <span *ngIf="status.isRunning">Running</span> <span *ngIf="!status.isRunning">Not Running</span>
+      <span  *ngIf="status.isRunning">
+        &bull; <strong>RPM: </strong> <span>{{ status.rpm }}</span> &bull;
+        <strong>Watts: </strong> <span>{{ status.watts }}</span>
+      </span>
+    </p>
+  </mat-card-content>
+</mat-card>

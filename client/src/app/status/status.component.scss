@@ -1,4 +1,4 @@
-.temp-graph {
+mat-card {
   margin-bottom: 16px;
 }
 
@@ -6,4 +6,12 @@
   position: absolute;
   top: 5px;
   left: 5px;
+}
+
+.refresh-button-status {
+  top: 10px;
+}
+
+.status-line {
+  text-align: center;
 }
