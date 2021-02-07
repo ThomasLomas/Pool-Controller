@@ -4,3 +4,19 @@
 
 html, body { height: 100%; }
 body { margin: 0; }
+
+.mat-card {
+  box-shadow: none !important;
+  border: 1px solid #ccc !important;
+  border-bottom: 3px solid #ccc !important;
+  border-radius: 0 !important;
+}
+
+mat-sidenav-container {
+  background: rgb(147,165,207) !important;
+  background: linear-gradient(90deg, rgba(147,165,207,1) 0%, rgba(228,239,233,1) 100%) !important;
+}
+
+.mat-toolbar.mat-primary {
+  background: rgba(63, 81, 181, .5);
+}

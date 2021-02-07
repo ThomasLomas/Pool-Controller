@@ -44,7 +44,6 @@ export class PentairService {
   getChecksum(data: number[]): number[] {
     const checkSumTotal = data.reduce((a, b) => a + b);
     const checkSumBig = Math.floor(checkSumTotal / 256);
-    // eslint-disable-next-line prettier/prettier
     const checkSumLittle = checkSumTotal - (checkSumBig * 256);
 
     return [checkSumBig, checkSumLittle];

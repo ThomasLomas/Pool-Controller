@@ -14,14 +14,9 @@ import { PentairService } from 'src/pump/pentair.service';
 import { PoolConfig } from 'src/interfaces/PoolConfig';
 
 @Injectable()
-export class SerialPortService
-  implements OnApplicationBootstrap, OnModuleDestroy {
-  constructor(
-    private loggerService: LoggerService,
-    private configService: ConfigService,
-    private pentairService: PentairService,
-  ) {
-    this.loggerService.setContext('SerialPortService');
+export class SerialPortService implements OnApplicationBootstrap, OnModuleDestroy {
+  constructor(private loggerService: LoggerService, private configService: ConfigService, private pentairService: PentairService) {
+    this.loggerService.setContext(SerialPortService.name);
   }
 
   private outboundQueue: Subject<Message> = new Subject<Message>();
@@ -31,7 +26,6 @@ export class SerialPortService
 
   private config: PoolConfig;
   private serialPort: SerialPort;
-  private isOpen = false;
 
   onApplicationBootstrap() {
     this.config = this.configService.getConfig();
@@ -65,7 +59,6 @@ export class SerialPortService
     this.serialPort.open((err) => {
       if (err) {
         this.loggerService.error('Error opening serial port', err.message);
-        this.isOpen = false;
       } else {
         this.loggerService.log('Request to open serial port was successful');
       }
@@ -77,9 +70,7 @@ export class SerialPortService
    */
   write(message: Message): Observable<Message> {
     this.loggerService.debug(
-      `Write data event triggered: ${JSON.stringify(
-        message.data,
-      )} - Response required: ${message.requiresResponse}`,
+      `Write data event triggered: ${JSON.stringify(message.data)} - Response required: ${message.requiresResponse}`,
     );
 
     this.outboundQueue.next(message);
@@ -90,112 +81,99 @@ export class SerialPortService
    * Processes the queue sequentially
    */
   private processQueue(): void {
-    this.outboundQueue
-      .pipe(
-        mergeMap(
-          (message: Message) => {
+    this.outboundQueue.pipe(
+      mergeMap((message: Message) => {
+        this.loggerService.debug(
+          `Picked up message on oubound queue: ${JSON.stringify(message.data)}`,
+        );
+
+        let responseSubscription: Subscription;
+
+        const writeMessage = () => {
+          this.serialPort.write(message.data, (err) => {
             this.loggerService.debug(
-              `Picked up message on oubound queue: ${JSON.stringify(
-                message.data,
-              )}`,
+              `Message sent: ${JSON.stringify(message.data)}`,
             );
 
-            let responseSubscription: Subscription;
+            if (err) {
+              this.loggerService.error(
+                `Serial port completed with error: ${err.message}`,
+                err.stack,
+              );
+              message.response$.error(err);
+              message.response$.complete();
 
-            const writeMessage = () => {
-              this.serialPort.write(message.data, (err) => {
-                this.loggerService.debug(
-                  `Message sent: ${JSON.stringify(message.data)}`,
-                );
+              if (responseSubscription) {
+                responseSubscription.unsubscribe();
+              }
+            } else if (!message.requiresResponse) {
+              message.response$.next(
+                new Message([], false, MessageDirection.INBOUND),
+              );
+              message.response$.complete();
+            }
+          });
+        };
 
-                if (err) {
-                  this.loggerService.error(
-                    `Serial port completed with error: ${err.message}`,
-                    err.stack,
-                  );
-                  message.response$.error(err);
-                  message.response$.complete();
+        // If we require a response then subscribe to the inbound messages
+        if (message.requiresResponse) {
+          this.expectingData = true;
+          let timeout: NodeJS.Timeout;
+          this.loggerService.debug('Message requires a response');
 
-                  if (responseSubscription) {
-                    responseSubscription.unsubscribe();
-                  }
-                } else if (!message.requiresResponse) {
-                  message.response$.next(
-                    new Message([], false, MessageDirection.INBOUND),
-                  );
-                  message.response$.complete();
-                }
-              });
-            };
-
-            // If we require a response then subscribe to the inbound messages
-            if (message.requiresResponse) {
-              this.expectingData = true;
-              let timeout: NodeJS.Timeout;
-              this.loggerService.debug('Message requires a response');
-
-              const handleTimeout = () => {
-                message.retries += 1;
-                if (message.retries > message.maxTries) {
-                  this.loggerService.error(
-                    'Did not receive a response in time. Giving up',
-                  );
-                  message.response$.error('No message response received');
-                  message.response$.complete();
-                  responseSubscription.unsubscribe();
-                } else {
-                  this.loggerService.error(
-                    `Did not receive a response in time. Retrying ${message.retries}/${message.maxTries} times.`,
-                  );
-                  writeMessage();
-                  timeout = setTimeout(() => {
-                    handleTimeout();
-                  }, 5000);
-                }
-              };
-
-              // After 5 seconds then try again
+          const handleTimeout = () => {
+            message.retries += 1;
+            if (message.retries > message.maxTries) {
+              this.loggerService.error('Did not receive a response in time. Giving up');
+              message.response$.error('No message response received');
+              message.response$.complete();
+              responseSubscription.unsubscribe();
+            } else {
+              this.loggerService.error(
+                `Did not receive a response in time. Retrying ${message.retries}/${message.maxTries} times.`,
+              );
+              writeMessage();
               timeout = setTimeout(() => {
                 handleTimeout();
-              }, 5000);
-
-              responseSubscription = this.inboundQueue.subscribe(
-                (inboundMessage) => {
-                  this.loggerService.log(
-                    'Received message on the inbound queue',
-                  );
-                  clearTimeout(timeout);
-                  message.response$.next(inboundMessage);
-                  message.response$.complete();
-                  responseSubscription.unsubscribe();
-                },
-              );
-
-              // For now in mock mode force a message back
-              if (this.config.serialPort.mock) {
-                setTimeout(() => {
-                  this.inboundQueue.next(
-                    new Message(
-                      // eslint-disable-next-line prettier/prettier
-                      [255, 0, 255, 165, 0, 33, 96, 7, 15, 10, 0, 0, 2, 62, 7, 208, 0, 0, 0, 0, 2, 49, 15, 11, 2, 170],
-                      false,
-                      MessageDirection.INBOUND,
-                    ),
-                  );
-                }, 50);
-              }
+              }, message.retryInterval);
             }
+          };
 
-            writeMessage();
+          // After 5 seconds then try again
+          timeout = setTimeout(() => {
+            handleTimeout();
+          }, message.retryInterval);
 
-            // Only move on when we have a response
-            return message.response$.pipe(catchError(() => of({})));
-          },
-          null,
-          1,
-        ),
-      )
-      .subscribe();
+          responseSubscription = this.inboundQueue.subscribe(
+            (inboundMessage) => {
+              this.loggerService.log('Received message on the inbound queue');
+              clearTimeout(timeout);
+              message.response$.next(inboundMessage);
+              message.response$.complete();
+              responseSubscription.unsubscribe();
+            },
+          );
+
+          // For now in mock mode force a message back
+          if (this.config.serialPort.mock) {
+            setTimeout(() => {
+              this.inboundQueue.next(
+                new Message(
+                  [255, 0, 255, 165, 0, 33, 96, 7, 15, 10, 0, 0, 2, 62, 7, 208, 0, 0, 0, 0, 2, 49, 15, 11, 2, 170],
+                  false,
+                  MessageDirection.INBOUND,
+                ),
+              );
+            }, 50);
+          }
+        }
+
+        writeMessage();
+
+        // Only move on when we have a response
+        return message.response$.pipe(catchError(() => of({})));
+      }, null, 1),
+    ).subscribe();
   }
 
   /**
@@ -216,7 +194,6 @@ export class SerialPortService
 
   private onOpen() {
     this.loggerService.log('Serial port opened');
-    this.isOpen = true;
     this.processQueue();
   }
 
@@ -253,7 +230,6 @@ export class SerialPortService
       );
 
       const bufferBigChecksum = this.inboundBytes[this.inboundBytes.length - 2];
-      // eslint-disable-next-line prettier/prettier
       const bufferLittleChecksum = this.inboundBytes[this.inboundBytes.length - 1];
 
       this.loggerService.debug(
