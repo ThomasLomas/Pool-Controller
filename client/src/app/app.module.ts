@@ -20,10 +20,13 @@ import { SidenavListComponent } from './navigation/sidenav-list/sidenav-list.com
 import { HomeComponent } from './pages/home/home.component';
 import { ScheduleComponent } from './pages/schedule/schedule.component';
 import { SettingsComponent } from './pages/settings/settings.component';
-import { HttpClientModule } from '@angular/common/http';
+import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { ConfigService, initConfig } from './config/config.service';
 import { PoolItemComponent } from './pool-item/pool-item.component';
 import { StatusComponent } from './status/status.component';
+import { LoaderComponent } from './loader/loader.component';
+import { LoaderService } from './loader/loader.service';
+import { LoaderInterceptorService } from './interceptors/loader-interceptor.service';
 
 @NgModule({
   declarations: [
@@ -35,6 +38,7 @@ import { StatusComponent } from './status/status.component';
     SettingsComponent,
     PoolItemComponent,
     StatusComponent,
+    LoaderComponent,
   ],
   imports: [
     HttpClientModule,
@@ -53,6 +57,12 @@ import { StatusComponent } from './status/status.component';
   ],
   providers: [
     ConfigService,
+    LoaderService,
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: LoaderInterceptorService,
+      multi: true
+    },
     {
       provide: APP_INITIALIZER,
       deps: [ ConfigService ],
