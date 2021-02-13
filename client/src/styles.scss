@@ -20,3 +20,7 @@ mat-sidenav-container {
 .mat-toolbar.mat-primary {
   background: rgba(63, 81, 181, .5);
 }
+
+mat-toolbar {
+  border-radius: 0 !important;
+}

@@ -66,7 +66,7 @@ export class PumpController {
           JSON.stringify(parsedStatus),
         );
 
-        return parsedStatus as PentairStatus;
+        return parsedStatus;
       }),
     );
   }

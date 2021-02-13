@@ -15,9 +15,9 @@ export const NAV_ITEMS: NavItem[] = [
     title: 'Schedule',
     link: '/schedule'
   },
-  {
-    icon: 'settings',
-    title: 'Settings',
-    link: '/settings'
-  },
+  // {
+  //   icon: 'settings',
+  //   title: 'Settings',
+  //   link: '/settings'
+  // },
 ];

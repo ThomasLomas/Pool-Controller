@@ -75,6 +75,7 @@ export class PumpService {
               this.pentairService.togglePower(false),
             ),
           ),
+          // Start schedule mode
           map(() =>
             this.serialPortService.write(
               this.pentairService.togglePower(true),
@@ -92,9 +93,7 @@ export class PumpService {
             this.queuedPumpUpdate = false;
           },
           (err) => {
-            this.loggerService.error(
-              `Encountered error: ${JSON.stringify(err)}`,
-            );
+            this.loggerService.error(`Encountered error: ${JSON.stringify(err)}`);
             this.queuedPumpUpdate = false;
           },
         );

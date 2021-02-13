@@ -20,7 +20,7 @@ export class PentairService {
     requiresResponse = true,
   ): Message {
     /**
-     * [ [PACKET_HEADER], PAYLOAD_HEADER, VERSION, DESTINATION, SOURCE, ACTION, DATA_LENGTH, [DATA], [CHECKSUM] ]
+     * [ [PACKET_HEADER], [PAYLOAD_HEADER, VERSION, DESTINATION, SOURCE], ACTION, DATA_LENGTH, [DATA], [CHECKSUM] ]
      */
     const packetHeader = [255, 0, 255];
     const payloadHeader = [165, 0, 96, 33];
