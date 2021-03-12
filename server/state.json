@@ -14,11 +14,13 @@
   },
   "influx": {
     "active": true,
-    "db": "pool",
-    "host": "10.0.1.203"
+    "bucket": "pool",
+    "org": "Lomas",
+    "token": "xxx",
+    "url": "http://10.0.1.203:8086"
   },
   "schedule": {
-    "active": true,
+    "active": false,
     "schedules": [
       {
         "active": true,

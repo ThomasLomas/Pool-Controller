@@ -105,8 +105,10 @@ export interface ScheduleAction {
 
 export interface InfluxConfig {
   active: boolean;
-  db: string;
-  host: string;
+  bucket: string;
+  url: string;
+  org: string;
+  token: string;
 }
 
 export interface PoolConfig {
